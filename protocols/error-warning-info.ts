@@ -1,5 +1,5 @@
 
-import { set_json } from "../json-store"
+import { json_store } from "../../../node5tse/https-server-build/setup"
 
 export type Severeness = 1|10|100|1000
 
@@ -18,7 +18,7 @@ export class CatastrophicError extends MyError {
 
     hard_report() : this {
         const date_now = Date.now()
-        set_json(`catastrophic-error-${this.constructor.name.toLowerCase()}-${date_now}`, this.stack)
+        json_store.set_json(`catastrophic-error-${this.constructor.name.toLowerCase()}-${date_now}`, this.stack)
         console.error(this.stack)
         return this
     }
@@ -33,9 +33,9 @@ export class CatastrophicError extends MyError {
 export class CatastrophicRuntimeResourceDepletionError extends CatastrophicError {}
 export class CatastrophicThousandForLoopRanToCompletionError extends CatastrophicError {}
 
-export class ProductionSafeguardError extends MyError {}
-export class NotImplementedError extends MyError {}
-export class NotFinishedImplementingError extends MyError {}
+export class ProductionSafeguardError extends Error {}
+export class NotImplementedError extends Error {}
+export class NotFinishedImplementingError extends Error {}
 
 
 // above errors are intended to stay even no one actively uses them.

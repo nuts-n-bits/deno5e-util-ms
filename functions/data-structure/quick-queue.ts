@@ -1,10 +1,5 @@
-import { MyError } from "../../protocols/error-warning-info"
 
-export class QuickQueueOutOfBoundsError extends MyError {
-    constructor() {
-        super(10)
-    }
-}
+export class QuickQueueOutOfBoundsError extends Error {}
 
 export class Quick_queue<T> {
 

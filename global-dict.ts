@@ -1,5 +1,5 @@
 
-import { MyError, Severeness } from "./protocols/error-warning-info"
+import { Severeness } from "./protocols/error-warning-info"
 import { Quick_queue } from "./functions/data-structure/quick-queue"
 import { Deferred_job_queue } from "./functions/deferred-job-queue"
 
@@ -25,7 +25,6 @@ export class Global_dict {
     public error_report(error : Error, severeness? : Severeness, forced_type? : string) {
 
         if(!severeness) severeness = 1000
-        if(error instanceof MyError) severeness = error.severeness
 
         const e_type = forced_type || error.constructor.name
 

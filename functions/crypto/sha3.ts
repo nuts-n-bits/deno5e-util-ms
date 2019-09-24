@@ -55,7 +55,7 @@ function kai (uint8 : number) : number {
 function keccak_permutation (state : Uint8Array) {
 
 
-    throw new NotImplementedError(1000)
+    throw new NotImplementedError()
 
 
 

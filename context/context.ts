@@ -25,7 +25,11 @@ export class Context {
     constructor (req : IncomingMessage, res : ServerResponse, routing_rule : App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
-        this._identified_cookie = new Id(";", "=", "").set((req.headers.cookie instanceof Array ? req.headers.cookie[0] : req.headers.cookie) || "")
+        let first_cookie : string = ""
+        if (typeof req.headers.cookie === "string") { first_cookie = req.headers.cookie }
+        else if (!req.headers.cookie) { first_cookie = "" }
+        else { first_cookie = req.headers.cookie[0] || "" }
+        this._identified_cookie = new Id(";", "=", "").set(first_cookie)
         this._remote_address    = req.headers["x-real-ip"]  || null
 
         this._request           = req
@@ -160,7 +164,7 @@ export class Context {
     }
 
     ua () : string|null {
-        const raw = this._request.headers["user-agent"] || null
+        const raw : any = this._request.headers["user-agent"] || null
         if(raw instanceof Array) { return raw[0] || null }
         else { return raw }
     }
