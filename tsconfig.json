@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-      "rootDir": "./https-server-build",
+      "rootDir": ".",
       "module": "commonjs",
       "target": "esnext",
       "sourceMap": true,
       "strictNullChecks": true,
       "strict": true,
-      "noImplicitAny": false,
+      "noImplicitAny": true,
       "noImplicitReturns": true,
       "watch": false
     },
