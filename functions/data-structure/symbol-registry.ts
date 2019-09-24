@@ -46,9 +46,9 @@ export class Symbol_registry {
 
     look_up(id : bigint) : [string, string] | null
     look_up(namespace : string, name : string) : bigint | null
-    look_up(arg1, arg2?) {
+    look_up(arg1 : bigint|string, arg2? : string) {
         if(typeof arg1 === "bigint") return this.look_up_1(arg1)
-        else return this.look_up_2(arg1, arg2)
+        else return this.look_up_2(arg1, arg2!)
     }
 
     private look_up_1(id : bigint) : [string, string] | null {

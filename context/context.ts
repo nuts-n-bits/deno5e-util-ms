@@ -9,7 +9,7 @@ import Id from "../functions/identify"
 import App_finder from "./find-app"
 import Handled_uri from "../protocols/handled-uri"
 
-export default class Context {
+export class Context {
 
     public  readonly time_of_admission      : number                     = Date.now()
     public  readonly app_finder             : App_finder<string|symbol, Function>
@@ -25,7 +25,7 @@ export default class Context {
     constructor (req : IncomingMessage, res : ServerResponse, routing_rule : App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
-        this._identified_cookie = new Id(";", "=", "").set(req.headers.cookie || "")
+        this._identified_cookie = new Id(";", "=", "").set((req.headers.cookie instanceof Array ? req.headers.cookie[0] : req.headers.cookie) || "")
         this._remote_address    = req.headers["x-real-ip"]  || null
 
         this._request           = req
@@ -160,7 +160,9 @@ export default class Context {
     }
 
     ua () : string|null {
-        return this._request.headers["user-agent"] || null
+        const raw = this._request.headers["user-agent"] || null
+        if(raw instanceof Array) { return raw[0] || null }
+        else { return raw }
     }
 
     uri () : string {
