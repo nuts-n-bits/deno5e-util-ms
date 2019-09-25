@@ -1,8 +1,5 @@
 
 import * as fs from "fs"
-import * as os from "os"
-
-const home_dir = os.homedir()
 
 export class Json_store {
 
