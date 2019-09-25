@@ -1,4 +1,5 @@
-import {NotImplementedError} from "../../protocols/error-warning-info"
+
+class NotImplementedError extends Error {}
 
 export function keccak (padded_byte_array : Uint8Array, output_length : bigint) {
 

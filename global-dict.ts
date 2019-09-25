@@ -1,8 +1,8 @@
 
-import { Severeness } from "./protocols/error-warning-info"
 import { Quick_queue } from "./functions/data-structure/quick-queue"
 import { Deferred_job_queue } from "./functions/deferred-job-queue"
 
+export type Severeness = 1|10|100|1000
 export type Error_report = [Date, Error, bigint, Severeness]
 export type Visit_record = {ra: string, url: string, ua: string, date: Date, id: bigint}
 

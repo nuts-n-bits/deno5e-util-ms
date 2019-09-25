@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
       "rootDir": ".",
+      "outDir": "../node_modules/lib-nnbc",
+      "declaration": true,
       "module": "commonjs",
       "target": "esnext",
       "sourceMap": true,

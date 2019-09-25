@@ -1,8 +1,9 @@
 
 import { sha256 } from "./functions/crypto/sha256"
-import { CatastrophicThousandForLoopRanToCompletionError } from "./protocols/error-warning-info"
 import { assert_truthy } from "./protocols/assert-passthrough"
-import { Json_store } from "lib-nnbc/json-store"
+import { Json_store } from "./json-store"
+
+class CatastrophicThousandForLoopRanToCompletionError extends Error {}
 
 const hour = 3600 * 1000
 
@@ -60,7 +61,8 @@ export class Entropy {
                 byte++
             }
         }
-        throw ((new CatastrophicThousandForLoopRanToCompletionError()).hard_report())
+        
+        throw new CatastrophicThousandForLoopRanToCompletionError()
     }
 
     contribute(contribution : number) : this

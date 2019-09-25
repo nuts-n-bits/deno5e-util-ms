@@ -1,12 +1,6 @@
-import { MyError } from "../../protocols/error-warning-info"
+export class SymbolRegistryDoubleIdRegistrationError extends Error {}
 
-export class SymbolRegistryDoubleIdRegistrationError extends MyError {
-    public name = "SymbolRegistryDoubleIdRegistrationError"
-}
-
-export class SymbolRegistryDoubleNsNameRegistrationError extends MyError {
-    public name = "SymbolRegistryDoubleNsNameRegistrationError"
-}
+export class SymbolRegistryDoubleNsNameRegistrationError extends Error {}
 
 /*
 *
@@ -31,9 +25,9 @@ export class Symbol_registry {
 
         // Double registration guard (2 if-throw guards)
         if (this._name_namespace_by_id.has(id))
-            throw new SymbolRegistryDoubleIdRegistrationError(1000)
+            throw new SymbolRegistryDoubleIdRegistrationError()
         if (this._id_by_name_namespace.has(namespace) && this._id_by_name_namespace.get(namespace)!.has(name))
-            throw new SymbolRegistryDoubleNsNameRegistrationError(1000)
+            throw new SymbolRegistryDoubleNsNameRegistrationError()
 
         this._name_namespace_by_id.set(id, [namespace, name])
 

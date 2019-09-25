@@ -1,6 +1,6 @@
 export function is_email (str : string) : boolean {
 
-    return /^[a-zA-Z0-9._~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)
+    return /^[a-zA-Z0-9._~\-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)
 }
 
 export function random_int (lower_bound : number, upper_bound : number) : number {
