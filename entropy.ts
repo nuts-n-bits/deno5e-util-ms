@@ -15,36 +15,9 @@ export class Entropy {
     private          one_way_preservation_counter = [0]
     private          entropy : Uint8Array
 
-    constructor(private foundation_entropy : Uint8Array, private json_store : Json_store) {
+    constructor(private foundation_entropy : Uint8Array, starting_entropy : Uint8Array) {
 
-        try {
-            assert_truthy(json_store.exists_json(this.entropy_json_name))
-            this.entropy = new Uint8Array(json_store.get_json(this.entropy_json_name))
-            assert_truthy(this.entropy.length === 32)
-        }
-        catch(e) {
-            json_store.set_json(this.entropy_json_name, [9,8,7,6,5,4,3,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9])
-            this.entropy = json_store.get_json(this.entropy_json_name)
-        }
-
-        this.set_regular_saves()
-    }
-
-    save_entropy_sync() {
-
-        this.produce()
-        this.json_store.set_json(this.entropy_json_name, Array.from(this.entropy))
-    }
-
-    save_entropy_async() {
-
-        this.produce()
-        this.json_store.set_json_async(this.entropy_json_name, Array.from(this.entropy))
-    }
-
-    set_regular_saves() {
-        setInterval(this.save_entropy_async.bind(this), this.save_entropy_time_interval)
-        process.on("exit", this.save_entropy_sync.bind(this))
+        this.entropy = starting_entropy
     }
 
     one_way_preservation_counter_get_c08_and_advance() {
