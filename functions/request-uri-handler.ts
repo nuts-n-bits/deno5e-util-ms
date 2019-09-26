@@ -21,18 +21,18 @@ export default function fn3 (uri_str : string) : Handled {
 
     */
 
-    let query_starting_pos = uri_str.indexOf(query_char)
-    let query = query_starting_pos < 0 ? "" : uri_str.substr(query_starting_pos + query_char_length)
+    const query_starting_pos = uri_str.indexOf(query_char)
+    const query = query_starting_pos < 0 ? "" : uri_str.substr(query_starting_pos + query_char_length)
     const uri_sans_query = query_starting_pos < 0 ? uri_str : uri_str.substr(0, query_starting_pos)
 
     // split uri.
-    let uri_split = uri_sans_query.substr(1).split("/").filter(fragment => fragment !== "")
+    const uri_split = uri_sans_query.substr(1).split("/").filter(fragment => fragment !== "")
 
     // fill cheese with empty string if ordered entry has a length of 0.
-    let cheese = uri_split.length > 0 ? uri_split[0] : ""
+    const app = uri_split.length > 0 ? uri_split[0] : ""
 
     return {
-        app: cheese,
+        app: app,
         get_ordered: uri_split,
         query: query,
         uri_sans_query: uri_sans_query,

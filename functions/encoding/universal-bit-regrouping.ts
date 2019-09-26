@@ -1,5 +1,5 @@
 
-export default function ubr(from_bit_length : number, to_bit_length : number, from_data_array : ArrayLike<number>) : Uint32Array {
+export function ubr(from_bit_length : number, to_bit_length : number, from_data_array : ArrayLike<number>) : Uint32Array {
 
     const total_bit_length = from_bit_length * from_data_array.length
     const remainder = total_bit_length % to_bit_length

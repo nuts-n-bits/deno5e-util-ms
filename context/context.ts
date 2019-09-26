@@ -5,9 +5,9 @@
 import { IncomingMessage, ServerResponse } from "http"
 import { ml_chamber } from "../functions/language-logics/multi-lang"
 import request_uri_handler from "../functions/request-uri-handler"
-import Id from "../functions/identify"
-import App_finder from "./find-app"
 import Handled_uri from "../protocols/handled-uri"
+import { Identify } from "../functions/identify"
+import { App_finder } from "./find-app"
 
 export class Context {
 
@@ -15,9 +15,9 @@ export class Context {
     public  readonly app_finder             : App_finder<string|symbol, Function>
 
     private          _app_chain             : Array<string>              = []
-    private readonly _identified_cookie     : Id
+    private readonly _identified_cookie     : Identify
     private readonly _handled_uri           : Handled_uri
-    private          _identified_query      : Id
+    private          _identified_query      : Identify
     private readonly _remote_address        : string|string[]|null
     private readonly _request               : IncomingMessage
     private readonly _response              : ServerResponse
@@ -29,7 +29,7 @@ export class Context {
         if (typeof req.headers.cookie === "string") { first_cookie = req.headers.cookie }
         else if (!req.headers.cookie) { first_cookie = "" }
         else { first_cookie = req.headers.cookie[0] || "" }
-        this._identified_cookie = new Id(";", "=", "").set(first_cookie)
+        this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
         this._remote_address    = req.headers["x-real-ip"]  || null
 
         this._request           = req
@@ -38,7 +38,7 @@ export class Context {
 
         // handle uri, assign uri handler results.
         this._handled_uri       = request_uri_handler(decodeURI(req.url||"/"))
-        this._identified_query  = new Id("&", "=", "").set(this._handled_uri.query)
+        this._identified_query  = new Identify("&", "=", "").set(this._handled_uri.query)
     }
 
     app_chain () : Array<string> {

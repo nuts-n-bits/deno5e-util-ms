@@ -1,68 +1,43 @@
-const tested_equal = function(str_or_regex : string|RegExp, candidate : string) {
-    if(typeof str_or_regex === "string")
-        return str_or_regex === candidate;
-    else if(str_or_regex instanceof RegExp)
-        return str_or_regex.test(candidate);
-    else
-        return false;
-};
+export class Identify {
 
-export default class Identify {
+    private message : string = ""
 
-    private message  : string              = "";
-    private memory   : Map<string, string> = new Map();
-    private left     : string
-    private right    : string
-    private assigner : string
+    constructor(private left : string, private delim : string, private right : string) {
 
-    constructor(left = "(", assigner = ":", right = ")") {  // todo: support regexp in the future
-
-        this.left = left
-        this.right = right
-        this.assigner = assigner
     }
 
     set (string : string) : Identify {
 
         this.message = string
-        this.memory = new Map()
         return this
     }
 
-    all (key : string) : string[] {  // todo: support regexp here
+    all (key : string) : string[] {
 
-        let array = this.message.split(this.left || this.right);
-        let found = false;
-        let content : Array<string> = [];
+        const array = this.message.split(this.left || this.right).map(fragment => {
+            const chamber = fragment.split(this.right || this.left)[0]
+            const index = chamber.indexOf(this.delim)
+            if(index === -1) { return null }
+            if(key !== chamber.substr(0, index)) { return null }
+            return chamber.substr(index + this.delim.length)
+        }).filter(result => result !== null)
 
-        for(let i=0; i<array.length; i++)
-        {
-            let chamber = array[i].split(this.right || this.left)[0];
-            let index = chamber.indexOf(this.assigner);
-            if(index === -1)
-                continue;
-            let candidate_key = chamber.substr(0, index);
-            if(!tested_equal(key, candidate_key))
-                continue;
-            content.push(chamber.substr(index + this.assigner.length));
-            found = true;
-        }
-
-        return found ? content : [];
+        return array as string[]
+        
     }
 
     first (key : string) : string|null {
-        let content = this.all(key);
+        let content = this.all(key)
         if(content.length > 0)
-            return content[0];
+            return content[0]
         else
-            return null;
+            return null
     }
 
     last (key : string) : string|null {
-        let content = this.all(key);
+        let content = this.all(key)
         if(content.length > 0)
-            return content[content.length - 1];
+            return content[content.length - 1]
         else
             return null
     }

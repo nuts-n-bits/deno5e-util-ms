@@ -1,5 +1,5 @@
 
-export default function hmac(hash_function : (x:Uint8Array)=>Uint8Array, key : Uint8Array, text : Uint8Array, hash_function_block_size : number) {
+export function hmac(hash_function : (x:Uint8Array)=>Uint8Array, key : Uint8Array, text : Uint8Array, hash_function_block_size : number) {
 
     if(key.length > hash_function_block_size)
         key = hash_function(key)
