@@ -1,4 +1,5 @@
-echo "tsc ..."
+echo "tsc"
 tsc
-echo "mv ..."
+echo "mv"
 mv "./(dist)-lib-nnbc" "../node_modules/lib-nnbc"
+echo "done"
