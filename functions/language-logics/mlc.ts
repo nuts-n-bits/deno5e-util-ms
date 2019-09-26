@@ -1,7 +1,6 @@
+import { best_fit_language_code } from "./best-fit-language-code"
 
-import accepted_languages from "./accepted-languages"
-
-export function ml_chamber(lang_code : string, chamber : any) {
+export function mlc(lang_code : string, chamber : any) {
 
     // if we did find the chamber, and the lang code is clearly defined, then it ends here.
     if(typeof chamber[lang_code] === "string")
@@ -15,7 +14,7 @@ export function ml_chamber(lang_code : string, chamber : any) {
         return ""
 
     // otherwise we will figure out a best fit.
-    let best_fit_code = accepted_languages(lang_code, accepted_codes)
+    let best_fit_code = best_fit_language_code(lang_code, accepted_codes)
 
     // the best fit code in chamber is clearly defined, return that.
     if(typeof chamber[best_fit_code] === "string")

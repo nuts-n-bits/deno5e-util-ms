@@ -3,7 +3,7 @@
 // const EEVDF = "earliest eligible virtual deadline first"
 
 import { IncomingMessage, ServerResponse } from "http"
-import { ml_chamber } from "../functions/language-logics/multi-lang"
+import { mlc } from "../functions/language-logics/mlc"
 import request_uri_handler from "../functions/request-uri-handler"
 import Handled_uri from "../protocols/handled-uri"
 import { Identify } from "../functions/identify"
@@ -128,7 +128,7 @@ export class Context {
     }
 
     mlc (chamber : {[index:string]:string}, lang_code : string) : string {
-        return ml_chamber(lang_code, chamber)
+        return mlc(lang_code, chamber)
     }
 
     /**
