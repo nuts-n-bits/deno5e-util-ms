@@ -1,209 +1,148 @@
 
-const overhead_constant = 50n;
-const placeholder = null;                    // This isn't that there's no placeholder. The placeholder is null itself.
-const placeholder_overhead_constant = 20n;
+const overhead_constant = 20n
+const placeholder = null
+const placeholder_overhead_constant = 10n
 
-export default class Tape {
+export class Tape {
 
-    public  static build: number = 1;
-    public  build: number = 1;
-    private __length__: bigint;
-    private __single_len__: bigint;
-    private __available__: bigint;
-    public  dict: any;
-    private __k_queue__: Array<number|string|null>;
-    private __l_queue__: Array<bigint>;
-    public  count: bigint;
+    public static readonly version = "2019.9.1"
+    public readonly version = Tape.version
 
-    constructor(length : bigint, single_item_max_length : bigint|null = null) {
+    private core_data_holder = new Map<string, string>()
+    private k_queue : Array<string|null> = []
+    private l_queue : Array<bigint> = []
+    public  count : bigint = 0n
+    public  available : bigint
 
-        Tape.__validate_sizes__(length, single_item_max_length);
+    constructor(private length : bigint) {
 
-        this.build = 1;  // version number
-        this.__length__ = length;
-        this.__single_len__ = single_item_max_length || length;
-        this.__available__ = length;
-        this.dict = {};
-        this.__k_queue__ = [];
-        this.__l_queue__ = [];
-        this.count = 0n;
+        this.available = length
     }
 
-    private static __validate_sizes__(length: bigint, single_item_max_length : bigint|null = null): void {
+    private drop_excessive(): void {
 
-        if (typeof length !== "bigint")
-            throw new TypeError("Oi, you must initiate a tape with a bigint length!");
+        while (this.available < 0 && this.k_queue.length > 0) {
 
-        if (length < 0n)
-            throw new Error("Oi, length must be non negative!");
+            const drop_k = this.k_queue.pop()
+            const drop_l = this.l_queue.pop()
 
-        if (single_item_max_length !== null && (typeof single_item_max_length !== "bigint" || single_item_max_length < 0n))
-            throw new Error("Oi, single item max size must be non negative!");
+            if (drop_k !== undefined && drop_k !== null && drop_l !== undefined && drop_l !== null) {
 
-    }
-
-    static estimate_item_size(k: string | number, v: string): bigint {
-
-        const k_length = typeof k === "number" ? 8n : BigInt(k.length);
-
-        return k_length * 2n + BigInt(v.length) + overhead_constant;
-    }
-
-    static fromString(string: string): Tape {
-
-        const tp: Tape = JSON.parse(string);
-
-        if (tp.build !== 1)
-            throw new Error("this tape utility has version " + Tape.build +
-                ", it cannot handle the tape serialization of build " + tp.build + ".");
-
-        const tape = new Tape(tp.__length__);
-
-        tape.build = tp.build;
-        tape.__length__ = tp.__length__;
-        tape.__available__ = tp.__available__;
-        tape.dict = tp.dict;
-        tape.__k_queue__ = tp.__k_queue__;
-        tape.__l_queue__ = tp.__l_queue__;
-        tape.count = tp.count;
-
-        return tape;
-
-    }
-
-    private __drop_excessive__(): void {
-
-        while (this.__available__ < 0 && this.__k_queue__.length > 0) {
-
-            const drop_k = this.__k_queue__.pop();
-            const drop_l = this.__l_queue__.pop();
-
-            if (drop_k !== void null && drop_k !== null && drop_l !== void null && drop_l !== null) {
-
-
-                delete this.dict[drop_k];
-                this.__available__ += drop_l;
-                this.count -= 1n;
+                this.core_data_holder.delete(drop_k)
+                this.available += drop_l
+                this.count -= 1n
             }
         }
 
     }
+    
+    estimate_item_size(k : string, v : string) : bigint {
 
-    resize(length: bigint, single_item_max_length: bigint|null = null): void {
-
-        Tape.__validate_sizes__(length, single_item_max_length);
-
-        const original_length = this.__length__;
-        const diff = length - original_length;
-
-        this.__length__ = length;
-        this.__single_len__ = single_item_max_length || length;
-        this.__available__ += diff;
-
-        this.__drop_excessive__();
+        return BigInt(k.length) * 4n + BigInt(v.length) * 2n + overhead_constant
     }
 
-    record(k: string | number, v: string): void {
+    resize(new_length : bigint): void {
 
-        const k_len = typeof k === "number" ? 8n : BigInt(String(k).length)
-        const v_len = BigInt(v.length);
-        const practical_length = k_len * 2n + v_len + overhead_constant;
+        const original_length = this.length
+        const diff = new_length - original_length
 
-        if (practical_length > this.__length__ || practical_length > this.__single_len__)
-            return;
+        this.length = new_length
+        this.available += diff
 
-        if (k in this.dict) {
+        this.drop_excessive()
+    }
 
-            const pos = this.__k_queue__.indexOf(k);
-            const original_length = this.__l_queue__[pos];
-            const diff = practical_length - original_length;
+    record(k : string, v : string) : void {
 
-            this.__l_queue__[pos] = practical_length;
-            this.__available__ -= diff;
+        const est_length = this.estimate_item_size(k, v)
 
-            this.dict[k] = v;
+        if (est_length > this.length) { return }
 
-            this.read(k);  // brings the key into the front
+        if (this.core_data_holder.has(k)) {
+
+            const pos = this.k_queue.indexOf(k)
+            const original_length = this.l_queue[pos]
+            const diff = est_length - original_length
+
+            this.l_queue[pos] = est_length
+            this.available -= diff
+
+            this.core_data_holder.set(k, v)
+
+            this.read(k)  // brings the key into the front
+
         } else {
 
-            this.__available__ -= practical_length;
-            this.count += 1n;
+            this.available -= est_length
+            this.count += 1n
 
-            this.__k_queue__.unshift(k);
-            this.__l_queue__.unshift(practical_length);
+            this.k_queue.unshift(k)
+            this.l_queue.unshift(est_length)
 
-            this.dict[k] = v;
+            this.core_data_holder.set(k, v)
         }
 
-        this.__drop_excessive__();
+        this.drop_excessive()
     }
 
-    read(key: string | number): any {
+    read(key : string) : string|null {
 
-        key = String(key);
+        const try_get = this.core_data_holder.get(key)
 
-        if (this.dict[key]) {
+        if (!try_get) { return null }
 
-            const pos = this.__k_queue__.indexOf(key);
+        const pos = this.k_queue.indexOf(key)
 
-            if (pos !== 0) {
+        if (pos !== 0) {
 
-                const k = this.__k_queue__[pos];
-                const l = this.__l_queue__[pos];
+            const k = this.k_queue[pos]
+            const l = this.l_queue[pos]
 
-                this.__k_queue__[pos] = placeholder;
-                this.__l_queue__[pos] = placeholder_overhead_constant;
+            this.k_queue[pos] = placeholder
+            this.l_queue[pos] = placeholder_overhead_constant
 
-                this.__k_queue__.unshift(k);
-                this.__l_queue__.unshift(l);
+            this.k_queue.unshift(k)
+            this.l_queue.unshift(l)
 
-                this.__available__ -= placeholder_overhead_constant;
-            }
+            this.available -= placeholder_overhead_constant
+        }
 
-            return this.dict[key];
-        } else
-            return null;
+        return try_get
+
     }
 
-    exist(key: string | number): boolean {
+    exist(key : string) : boolean {
 
-        return key in this.dict;
+        return this.core_data_holder.has(key)
     }
 
-    erase(key: string | number): boolean {
+    delete(key: string) : boolean {
 
-        key = String(key);
+        if (this.core_data_holder.has(key)) {
 
-        if (this.dict[key]) {
+            const pos = this.k_queue.indexOf(key)
 
-            const pos = this.__k_queue__.indexOf(key);
+            const k = this.k_queue[pos]
+            const l = this.l_queue[pos]
 
-            const k = this.__k_queue__[pos];
-            const l = this.__l_queue__[pos];
+            this.k_queue[pos] = placeholder
+            this.l_queue[pos] = placeholder_overhead_constant
 
-            this.__k_queue__[pos] = placeholder;
-            this.__l_queue__[pos] = placeholder_overhead_constant;
+            this.core_data_holder.delete(key)
 
-            delete this.dict[key];
+            this.available += l - placeholder_overhead_constant
 
-            this.__available__ += l - placeholder_overhead_constant;
+            return true
 
-            return true;
         } else {
 
-            return false;
+            return false
         }
     }
 
-    estimated_length(): bigint {
+    estimated_remaining_length() : bigint {
 
-        return this.__length__ - this.__available__;
-    }
-
-    toString(): string {
-
-        return JSON.stringify(this);
-
+        return this.length - this.available
     }
 
 }
