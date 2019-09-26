@@ -1,6 +1,6 @@
 
-import { Quick_queue } from "./functions/data-structure/quick-queue"
-import { Deferred_job_queue } from "./functions/deferred-job-queue"
+import { Quick_queue } from "./data-structure/quick-queue"
+import { Deferred_job_queue } from "./deferred-job-queue"
 
 export type Severeness = 1|10|100|1000
 export type Error_report = [Date, Error, bigint, Severeness]
