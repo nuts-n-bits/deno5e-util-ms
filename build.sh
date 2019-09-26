@@ -1,5 +1,5 @@
-$dist_dir="./dist"
-$target_dir="../node_modules/lib-nnbc"
+dist_dir="./dist"
+target_dir="../node_modules/lib-nnbc"
 
 echo "rm -rf" $dist_dir $target_dir
 rm -fr $dist_dir $target_dir

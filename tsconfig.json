@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
       "rootDir": ".",
-      "outDir": "./(dist)-lib-nnbc",
+      "outDir": "./dist",
       "declaration": true,
       "module": "commonjs",
       "target": "esnext",
@@ -17,6 +17,6 @@
     ],
     "exclude": [
       "node_modules",
-      "./(dist)-lib-nnbc"
+      "./dist"
     ]
   }
