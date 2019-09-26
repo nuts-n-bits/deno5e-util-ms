@@ -1,29 +1,16 @@
 
 class CatastrophicThousandForLoopRanToCompletionError extends Error {}
 
-// const hour = 3600 * 1000
-// private readonly entropy_json_name = "entropy-sha256sig-c08-array-literal-string"
-// private readonly save_entropy_time_interval = 2 * hour
-// try {
-//     assert_truthy(json_store.exists_json(this.entropy_json_name))
-//     this.entropy = new Uint8Array(json_store.get_json(this.entropy_json_name))
-//     assert_truthy(this.entropy.length === 32)
-// }
-// catch(e) {
-//     json_store.set_json(this.entropy_json_name, [9,8,7,6,5,4,3,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9])
-//     this.entropy = json_store.get_json(this.entropy_json_name)
-// }
+const hexify = ((x : number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
 
 export class Entropy {
 
-    private readonly hexify = ((x : number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
-
-    private          one_way_preservation_counter = [0]
-    private          entropy : Uint8Array
+    private one_way_preservation_counter = [0]
+    private entropy : Uint8Array
 
     constructor(
         private foundation_entropy : Uint8Array, 
-        starting_entropy : Uint8Array, 
+        starting_entropy : Uint8Array,
         private hash_function : (preimage : Uint8Array) => Uint8Array) {
 
         this.entropy = starting_entropy
@@ -81,11 +68,11 @@ export class Entropy {
         this.entropy = this.hash_function(message_to_digest)
 
         if(format === "raw")
-            return new Uint8Array(this.entropy)
+            return this.entropy
         else if(format === "b64")
             return new Buffer(this.entropy).toString("base64")
         else /* hex */
-            return Array.from(this.entropy).map(this.hexify).join("")
+            return Array.from(this.entropy).map(hexify).join("")
     }
 
 }
