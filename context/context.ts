@@ -3,20 +3,20 @@
 // const EEVDF = "earliest eligible virtual deadline first"
 
 import { IncomingMessage, ServerResponse } from "http"
-import request_uri_handler from "../functions/request-uri-handler"
-import Handled_uri from "../protocols/handled-uri"
+import { request_uri_handler } from "../functions/request-uri-handler"
+import { Handled } from "../protocols/handled-uri"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
 import { mlc } from "../functions/language-logics/best-fit-language-code"
 
 export class Context {
 
-    public  readonly time_of_admission      : number                     = Date.now()
+    public  readonly time_of_admission      : number = Date.now()
     public  readonly app_finder             : App_finder<string|symbol, Function>
 
-    private          _app_chain             : Array<string>              = []
+    private          _app_chain             : Array<string> = []
     private readonly _identified_cookie     : Identify
-    private readonly _handled_uri           : Handled_uri
+    private readonly _handled_uri           : Handled
     private          _identified_query      : Identify
     private readonly _remote_address        : string|string[]|null
     private readonly _request               : IncomingMessage

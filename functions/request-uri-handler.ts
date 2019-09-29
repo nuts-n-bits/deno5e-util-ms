@@ -3,9 +3,9 @@
 const query_char = "?"
 const query_char_length = query_char.length
 
-import Handled from "../protocols/handled-uri"
+import { Handled } from "../protocols/handled-uri"
 
-export default function fn3 (uri_str : string) : Handled {
+export function request_uri_handler (uri_str : string) : Handled {
 
     /*
 
