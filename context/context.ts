@@ -110,13 +110,7 @@ export class Context {
 
     lang_code_header () : string|null {
         
-        const raw_header = this._request.headers["accept-language"]
-        let header_lang : string|null
-
-        if (typeof raw_header === "string") header_lang = raw_header
-        else if (!raw_header) header_lang = null
-        else if (raw_header.length === 0) header_lang = null
-        else header_lang = raw_header[0]
+        const header_lang = this._request.headers["accept-language"] || null
 
         const first_header_lang = header_lang ? header_lang.split(",")[0].split(";")[0].trim() : null
 
