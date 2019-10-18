@@ -8,6 +8,7 @@ import { Handled } from "../protocols/handled-uri"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
 import { mlc } from "../functions/language-logics/best-fit-language-code"
+import { Quick_queue } from "../functions/data-structure/quick-queue"
 
 export class Context {
 
@@ -49,22 +50,21 @@ export class Context {
         return this._identified_cookie.first(name)
     }
 
-    get (index : number) : string|null {
+    get (index : bigint) : string|null {
 
-        let array_len = this._handled_uri.get_ordered.length
-        index = Math.floor(index)
+        let array_len = this._handled_uri.get_ordered.size()
 
-        if(index > array_len-1) {
+        if(index > array_len - 1n) {
 
             return null
         }
-        else if(index > -1) {
+        else if(index > -1n) {
 
-            return this._handled_uri.get_ordered[index]
+            return this._handled_uri.get_ordered.peek(index)
         }
         else if(index >= -array_len) {
 
-            return this._handled_uri.get_ordered[index + array_len]
+            return this._handled_uri.get_ordered.peek(index + array_len)
         }
         else {
 
@@ -72,7 +72,7 @@ export class Context {
         }
     }
 
-    get_ordered () : Array<string> {
+    get_ordered () : Quick_queue<string> {
         return this._handled_uri.get_ordered
     }
 

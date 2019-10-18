@@ -4,6 +4,7 @@ const query_char = "?"
 const query_char_length = query_char.length
 
 import { Handled } from "../protocols/handled-uri"
+import { Quick_queue } from "./data-structure/quick-queue"
 
 export function request_uri_handler (uri_str : string) : Handled {
 
@@ -27,15 +28,17 @@ export function request_uri_handler (uri_str : string) : Handled {
 
     // split uri.
     const uri_split = uri_sans_query.substr(1).split("/").filter(fragment => fragment !== "")
+    const get_ordered = new Quick_queue<string>()
+    uri_split.forEach(uri_fragment => get_ordered.push(uri_fragment))
 
     // fill cheese with empty string if ordered entry has a length of 0.
     const app = uri_split.length > 0 ? uri_split[0] : ""
 
     return {
-        app: app,
-        get_ordered: uri_split,
-        query: query,
-        uri_sans_query: uri_sans_query,
+        app,
+        get_ordered,
+        query,
+        uri_sans_query
     }
 }
 
