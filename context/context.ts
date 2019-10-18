@@ -13,7 +13,6 @@ export class Context {
 
     public  readonly time_of_admission      : number = Date.now()
     public  readonly app_finder             : App_finder<string|symbol, Function>
-    public           current_get_focus      : number = 0
 
     private          _app_chain             : Array<string> = []
     private readonly _identified_cookie     : Identify
