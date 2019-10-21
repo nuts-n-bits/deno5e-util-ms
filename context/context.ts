@@ -140,9 +140,10 @@ export class Context {
         return this._handled_uri.query
     }
 
-    remote_address () : string[] {
-        if(typeof this._remote_address === "string") return [this._remote_address]
-        else return this._remote_address || []
+    remote_address () : string|null {
+        if (typeof this._remote_address === "string") return this._remote_address
+        else if (this._remote_address === null) { return null }
+        else { return this._remote_address[0] || null }
     }
 
     request () : IncomingMessage {
