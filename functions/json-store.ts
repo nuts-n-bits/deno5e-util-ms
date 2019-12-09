@@ -7,6 +7,9 @@ export class Json_store {
 
     }
 
+    /**
+     * @param name name of the json file, must be [0-9a-z\-]+ (lowercase alphanumeric and dash)
+     */
     json_path_by_name (name : string) : string {
 
         if(/^[0-9a-z\-]+$/.test(name)) return `${this.save_directory}/${name}`
@@ -18,6 +21,9 @@ export class Json_store {
         return fs.existsSync(this.json_path_by_name(name))
     }
 
+    /**
+     * @param name if json does not exist, throws error. check existance with json_exists first.
+     */
     get_json(name : string) : any {
 
         return JSON.parse(fs.readFileSync(this.json_path_by_name(name)).toString("utf-8"))
