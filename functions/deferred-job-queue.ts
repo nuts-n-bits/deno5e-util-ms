@@ -11,7 +11,7 @@ export class Deferred_job_queue<F extends Function> {
     private core_queue = new Quick_queue<F>()
     private keep_running = true
     private job_pending = false
-    public job_interval_calc : (jobs_enqueued : bigint) => number = standard_interval
+    public job_interval_calc : (number_of_jobs_enqueued : bigint) => number = standard_interval
 
     private async lunch() : Promise<void> {
         if(this.core_queue.size() > 0 && this.keep_running) {

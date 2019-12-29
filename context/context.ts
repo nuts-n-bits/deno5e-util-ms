@@ -1,5 +1,5 @@
 
-// const recommendation_from_sb_ryan = "https://www.youtube.com/?q=Topological+data+analysis"
+// const Topological Data Analysis = "https://www.youtube.com/?q=Topological+data+analysis"
 // const EEVDF = "earliest eligible virtual deadline first"
 
 import { IncomingMessage, ServerResponse } from "http"
@@ -26,12 +26,12 @@ export class Context {
     constructor (req : IncomingMessage, res : ServerResponse, routing_rule : App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
-        let first_cookie : string = ""
+        let first_cookie : string = ""  // if client header presents more than one Cookie entry, only care about the first.
         if (typeof req.headers.cookie === "string") { first_cookie = req.headers.cookie }
         else if (!req.headers.cookie) { first_cookie = "" }
         else { first_cookie = req.headers.cookie[0] || "" }
         this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
-        this._remote_address    = req.headers["x-real-ip"]  || null
+        this._remote_address    = req.headers["x-real-ip"] || null
 
         this._request           = req
         this._response          = res
