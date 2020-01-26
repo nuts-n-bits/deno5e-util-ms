@@ -11,7 +11,8 @@ export class Entropy {
     constructor(
         private foundation_entropy : Uint8Array, 
         starting_entropy : Uint8Array,
-        private hash_function : (preimage : Uint8Array) => Uint8Array) {
+        private hash_function : (preimage : Uint8Array) => Uint8Array
+    ) {
 
         this.entropy = starting_entropy
     }
