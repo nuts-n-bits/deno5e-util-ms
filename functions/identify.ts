@@ -6,7 +6,7 @@ export class Identify {
 
     }
 
-    set (string : string) : Identify {
+    set (string : string) : this {
 
         this.message = string
         return this
@@ -17,13 +17,13 @@ export class Identify {
         const array = this.message.split(this.left || this.right).map(fragment => {
             const chamber = fragment.split(this.right || this.left)[0]
             const index = chamber.indexOf(this.delim)
-            if(index === -1) { return null }
-            if(key !== chamber.substr(0, index)) { return null }
-            return chamber.substr(index + this.delim.length)
+            const chamber_key = index === -1 ? chamber : chamber.substr(0, index)
+            if(key !== chamber_key) { return null }
+            else if (index === -1) { return "" }
+            else { return chamber.substr(index + this.delim.length) }
         }).filter(result => result !== null)
 
         return array as string[]
-        
     }
 
     first (key : string) : string|null {

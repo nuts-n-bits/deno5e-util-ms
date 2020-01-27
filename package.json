@@ -16,6 +16,6 @@
   },
   "homepage": "https://github.com/nuts-n-bits/lib-nnbc#readme",
   "dependencies": {
-    "@types/node": "^12.7.12"
+    "@types/node": "^12.12.25"
   }
 }
