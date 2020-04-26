@@ -31,7 +31,7 @@ export class Context {
         else if (!req.headers.cookie) { first_cookie = "" }
         else { first_cookie = req.headers.cookie[0] || "" }
         this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
-        this._remote_address    = req.headers["x-real-ip"] || null
+        this._remote_address    = req.headers["x-real-ip"] || req.connection.remoteAddress || null
 
         this._request           = req
         this._response          = res
@@ -119,10 +119,6 @@ export class Context {
 
     method () : string|null {
         return this._request.method || null
-    }
-
-    mlc (chamber : {[index:string]:string}, lang_code : string) : string {
-        return mlc(chamber, lang_code)
     }
 
     /**

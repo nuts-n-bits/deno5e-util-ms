@@ -7,15 +7,7 @@ export class AssertionNotNullError extends Error {}
 export class AssertionNotNullOrUndefinedError extends Error {}
 export class AssertionNeverError extends Error {}
 
-
 // Verify functions is for compile time type hinting. It's for TS to throw TS errors and will never throw a JS error
-export function type_check(value : string, type : "string") : string
-export function type_check(value : number, type : "number") : number
-export function type_check(value : bigint, type : "bigint") : bigint
-export function type_check(value : symbol, type : "symbol") : symbol
-export function type_check(value : undefined, type : "undefined") : undefined
-export function type_check(value : boolean, type : "boolean") : boolean
-export function type_check(value : null, type : "null") : null
 export function type_check<T>(value : T) : T {
     return value
 }
