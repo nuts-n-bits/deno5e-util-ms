@@ -1,19 +1,24 @@
 dist_dir="./dist"
-target="../node_modules/lib-nnbc"
+target1="../node5tse/node_modules/lib-nnbc"
+target2="../angular2/node_modules/lib-nnbc"
 
 echo "rm -rf" $dist_dir
-rm -fr $dist_dir
+rm -rf $dist_dir
 
 echo "tsc"
 tsc
 
-echo "rm -rf" -rf $target
-rm -rf $target
+echo "rm -rf" $target1
+rm -rf $target1
+echo "rm -rf" $target2
+rm -rf $target2
 
-echo "mv" $dist_dir $target
-mv $dist_dir $target
+echo "cp -r" $dist_dir $target1
+cp -r $dist_dir $target1
+echo "cp -r" $dist_dir $target2
+cp -r $dist_dir $target2
 
 echo "rm -rf" $dist_dir
-rm -fr $dist_dir
+rm -rf $dist_dir
 
 echo "done"

@@ -1,19 +1,17 @@
-export function is_email (str : string) : boolean {
+export function is_email (str: string): boolean {
 
     return /^[a-zA-Z0-9._~\-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)
 }
 
-export function random_int (lower_bound : number, upper_bound : number) : number {
+export function random_int (lower_bound: number, upper_bound: number): number {
 
-    let upper : number, lower : number
+    let upper: number, lower: number
 
     if(lower_bound > upper_bound) {
-
         upper = lower_bound
         lower = upper_bound
     }
     else {
-
         upper = upper_bound
         lower = lower_bound
     }
@@ -21,7 +19,7 @@ export function random_int (lower_bound : number, upper_bound : number) : number
     return Math.floor(Math.random()*(upper - lower + 1) + lower)
 }
 
-export function is_sig (str : string|null) : boolean {
+export function is_sig (str: string|null): boolean {
 
     return typeof str === "string" && /^[0-9a-f]{64}$/.test(str)
 }
@@ -36,19 +34,19 @@ export class Username_check_result {
     disallowed_char         = false
     all_numbers             = false
 
-    pass () : boolean {
+    pass (): boolean {
 
         return !this.too_long && !this.not_in_default_char_set && !this.leading_white &&
             !this.ending_white && !this.consecutive_white && !this.disallowed_char && !this.all_numbers
     }
 
-    fail () : boolean {
+    fail (): boolean {
 
         return !this.pass()
     }
 }
 
-export function username_check (str : string) : Username_check_result {
+export function username_check (str: string): Username_check_result {
 
     const ucr = new Username_check_result()
 
@@ -63,7 +61,7 @@ export function username_check (str : string) : Username_check_result {
     return ucr
 }
 
-export function regulate_username(str : string) : string {
+export function regulate_username(str: string): string {
 
     const short = str.substr(0, 256);
     const only_allowed_characters = short.replace(/[^ -~¡-¬®-ʸぁ-ヿ㐀-䶵가-힣、-〼，！？；：（ ）［］【】—一-鿏]/g, "");
@@ -75,7 +73,7 @@ export function regulate_username(str : string) : string {
     return no_disallowed_char;
 }
 
-export function nice_looking_background () : string {
+export function nice_looking_background (): string {
 
     let rm043 = random_int(23, 100)
     let rm129 = random_int(109, 255)
@@ -96,7 +94,7 @@ export function nice_looking_background () : string {
 `.trim()
 }
 
-export function sanitize_html(insertee : string|number|bigint|undefined) : string {
+export function sanitize_html(insertee: string|number|bigint|undefined): string {
 
     return String(insertee)
         .replace(/&/g, "&amp;")
@@ -107,7 +105,7 @@ export function sanitize_html(insertee : string|number|bigint|undefined) : strin
 
 }
 
-function _sanitize_html_inverse(sanitized : string) : string {
+function _sanitize_html_inverse(sanitized: string): string {
 
 
     return sanitized
