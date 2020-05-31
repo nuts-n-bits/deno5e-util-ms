@@ -2,7 +2,7 @@ import { assert_never } from "../protocols/assert-passthrough"
 
 export function serialize(map: Map<string, string>): string {
     const jsonObj: {[i:string]:string} = {}
-    map.forEach((k, v) => jsonObj[k] = v)
+    map.forEach((v, k) => jsonObj[k] = v)
     return JSON.stringify(jsonObj)
 }
 

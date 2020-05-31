@@ -66,11 +66,9 @@ export class Quick_queue<T> {
         this.core_data.set(this.left_bound + index, item)
     }
 
-    forEach (f : Function) : void {
+    forEach (f: (value: T, key: bigint, map: Map<bigint, T>) => void) : void {
 
-        for (let i=0; i<this.size(); i++) {
-            f(this.peek(BigInt(i)))
-        }
+        this.core_data.forEach(f)
     }
 
     toString () : string {

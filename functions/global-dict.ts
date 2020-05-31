@@ -3,7 +3,8 @@ import { Quick_queue } from "./data-structure/quick-queue"
 import { Deferred_job_queue } from "./deferred-job-queue"
 
 export type Severeness = 1|10|100|1000
-export type Error_report = [Date, Error, bigint, Severeness]
+export type Dismissed = boolean
+export type Error_report = [Date, Error, bigint, Severeness, Dismissed]
 export type Visit_record = {ra: string, url: string, ua: string, date: Date, id: bigint}
 
 export class Global_dict {
@@ -18,8 +19,8 @@ export class Global_dict {
 
     public readonly error_collection : Map<string, Quick_queue<Error_report>> = new Map()
     // used to keep track of currently reported error, to de-duplicate error reporting
-    public readonly current_error_pool : Map<Error, true> = new Map()
-    public readonly error_report_sample : Error_report = [new Date(), new Error(), 0n, 10]
+    public readonly current_error_pool : WeakMap<Error, true> = new Map()
+    public readonly error_report_sample : Error_report = [new Date(), new Error(), 0n, 10, false]
 
     // error report has ways to de-duplicate error reports.
     public error_report(error : Error, severeness? : Severeness, forced_type? : string) {
@@ -34,9 +35,16 @@ export class Global_dict {
             const [_1, dropped_error, _2, _3] = array.shift()
             this.current_error_pool.delete(dropped_error)
         }
-        if(!this.current_error_pool.has(error)) array.push([new Date(), error, this.err_id++, severeness])
+        if(!this.current_error_pool.has(error)) array.push([new Date(), error, this.err_id++, severeness, false])
 
         this.error_collection.set(e_type, array)
+    }
+
+    public error_dismiss(e_type: string, id: bigint) {
+        const host_collcetion = this.error_collection.get(e_type)
+        if(host_collcetion) {
+            host_collcetion.forEach(report => report[4] = (report[4] || (report[2] === id)))
+        }
     }
 
     public readonly recent_visits : Quick_queue<Visit_record> = new Quick_queue()

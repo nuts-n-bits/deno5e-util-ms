@@ -18,11 +18,3 @@ export class Map_but_with_default<K, V> extends Map<K, V> {
         return super.get(key) || this.default_value
     }
 }
-
-`
-
-<displaytitle v="API Documentation" />
-<redirect v="/API/documentation" />
-<nosidebar />
-
-`
