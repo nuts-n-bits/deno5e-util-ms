@@ -1,5 +1,5 @@
 dist_dir="./dist"
-target1="../node5tse/node_modules/lib-nnbc"
+target1="../node5e/node_modules/lib-nnbc"
 target2="../angular2/node_modules/lib-nnbc"
 
 echo "rm -rf" $dist_dir

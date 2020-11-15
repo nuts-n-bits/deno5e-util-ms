@@ -10,12 +10,13 @@
     "url": "git+https://github.com/nuts-n-bits/lib-nnbc.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "proprietary",
   "bugs": {
     "url": "https://github.com/nuts-n-bits/lib-nnbc/issues"
   },
   "homepage": "https://github.com/nuts-n-bits/lib-nnbc#readme",
-  "dependencies": {
-    "@types/node": "^12.12.37"
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^12.12.68"
   }
 }
