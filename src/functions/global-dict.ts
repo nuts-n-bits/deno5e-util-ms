@@ -23,6 +23,9 @@ export class Global_dict {
     public readonly error_report_sample : Error_report = [new Date(), new Error(), 0n, 10, false]
 
     // error report has ways to de-duplicate error reports.
+    /**
+     * @param forced_type Set to a string if you want the error report to show a different class of error than is associated with the error object. If unset defaults to error.constructor.name.
+     */
     public error_report(error : Error, severeness? : Severeness, forced_type? : string) {
 
         if(!severeness) severeness = 1000

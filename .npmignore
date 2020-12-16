@@ -1,0 +1,6 @@
+src
+node_moules
+build.sh
+package.json
+package-lock.json
+tsconfig.json
