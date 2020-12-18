@@ -16,41 +16,46 @@
  *
  * */
 
+import { type_check_never } from "../protocols/assert-passthrough"
+
 export class App_finder<App_id, App_type> {
 
     private readonly _app_use_by_name = new Map<App_id, App_type>()
-    private readonly _app_use_by_regex : [RegExp, App_type][] = []
-    private          _fall_back_app : App_type
+    private readonly _app_use_by_regex: [RegExp, App_type][] = []
+    private _fall_back_app: App_type
 
     private readonly _host_app_use_by_name = new Map<string, Map<App_id, App_type>>()
     private readonly _host_app_use_by_regex = new Map<string, [RegExp, App_type][]>()
     private readonly _host_fall_back_app = new Map<string, App_type>()
 
     private readonly _host_alias = new Map<string, string>()
-    private readonly _host_alias_regex : [RegExp, string][] = []
+    private readonly _host_alias_regex: [RegExp, string][] = []
     private readonly _known_hosts = new Map<string, true>()
 
-    constructor(general_fall_back_app : App_type) {
+    public readonly options: Options
+
+    constructor(general_fall_back_app: App_type, options?: Options) {
         // fallback アプリは唯一の必要なコンポネート。だから constructor でこれを要求する。
         this._fall_back_app = general_fall_back_app
+        this.options = options ?? {}
     }
 
-    bind_name_to_app (host : string|null, app_name : App_id|RegExp, app : App_type) : void {
+    bind_name_to_app(host: string | null, app_name: App_id | RegExp, app: App_type): void {
 
-        if(host === null) {
-            if(app_name instanceof RegExp) this.bind_app_4(null, app_name, app)
+        if (host === null) {
+            if (app_name instanceof RegExp) this.bind_app_4(null, app_name, app)
             else this.bind_app_3(null, app_name, app)
         }
         else {
-            if(app_name instanceof RegExp) this.bind_app_2(host, app_name, app)
+            if (app_name instanceof RegExp) this.bind_app_2(host, app_name, app)
             else this.bind_app_1(host, app_name, app)
             this._known_hosts.set(host, true)
         }
     }
 
-    set_host_alias (host : string, alias : string|RegExp) : void {
+    set_host_alias(host: string, alias: string | RegExp): void {
 
-        if(typeof alias === "string") {
+        if (typeof alias === "string") {
             this._host_alias.set(alias, host)
         }
         else {
@@ -59,9 +64,9 @@ export class App_finder<App_id, App_type> {
         }
     }
 
-    set_fall_back_app (host : string|null, app : App_type) {
+    set_fall_back_app(host: string | null, app: App_type) {
 
-        if(host === null) {
+        if (host === null) {
             this._fall_back_app = app
         }
         else {
@@ -70,24 +75,24 @@ export class App_finder<App_id, App_type> {
         }
     }
 
-    find_app (host : string|null, app_name : App_id) : App_type {
+    find_app(host: string | null, app_name: App_id): App_type {
 
         // ホストがなければ一般ホストのルールへ
         // ホストがあれば特定のホストのルールを試みる
-        if(host) {
+        if (host) {
 
             // 特定のホスト名を要求した。ホストが登録したかどうかをチェックする。
-            if(!this._known_hosts.has(host)) {
+            if (!this._known_hosts.has(host)) {
 
                 // ホストが見つからない場合は alias 記録によってホスト名を調整する
                 const by_alias = this._host_alias.get(host)
-                if(by_alias) {
+                if (by_alias) {
                     host = by_alias
                 }
                 else {
                     // ホストがまだ見つからない場合は RegEx によってホスト名を調整する
-                    for(let i=0; i<this._host_alias_regex.length; i++) {
-                        if(this._host_alias_regex[i][0].test(host)) {
+                    for (let i = 0; i < this._host_alias_regex.length; i++) {
+                        if (this._host_alias_regex[i][0].test(host)) {
                             host = this._host_alias_regex[i][1]
                             break
                         }
@@ -96,29 +101,29 @@ export class App_finder<App_id, App_type> {
             }
 
             // ホスト名は調整した。このホストを知ってるかい？
-            if(this._known_hosts.has(host)) {
+            if (this._known_hosts.has(host)) {
 
                 // ホストを知ってる。この特定のホストのルールを採用。
                 // まずはアプリ名によって、ホスト上でアプリを検索する。
                 const host_app_dict = this._host_app_use_by_name.get(host)
-                if(host_app_dict) {
+                if (host_app_dict) {
                     const app = host_app_dict.get(app_name)
-                    if(app) return app
+                    if (app) return app
                 }
 
                 // アプリ名でアプリをはっきり特定できない：アプリ名は文字列の場合はRegExでアプリ名を検索（同じホストのRegExのみを使う）。
-                if(typeof app_name === "string") {
+                if (typeof app_name === "string") {
                     const host_app_dict_regex = this._host_app_use_by_regex.get(host)
-                    if(host_app_dict_regex) {
-                        let app : App_type|null = null
+                    if (host_app_dict_regex) {
+                        let app: App_type | null = null
                         host_app_dict_regex.forEach(rule => rule[0].test(app_name) ? (app = rule[1]) : void null)
-                        if(app) return app
+                        if (app) return app
                     }
                 }
 
                 // RegExを使ってもアプリが見つからない、またはアプリ名はsymbol：fallbackアプリを使う。
                 const fallback_app = this._host_fall_back_app.get(host)
-                if(fallback_app) return fallback_app
+                if (fallback_app) return fallback_app
 
                 // ホスト関連のfallbackがない場合：一般ホストのルールを採用。ifブランチを抜け出す。
             }
@@ -127,30 +132,31 @@ export class App_finder<App_id, App_type> {
         // ホストを知っていない。また、ホストを知ったけどアプリもfallbackもない。
         // まずはアプリ名によって、一般ホストのアプリを検索する。
         const app1 = this._app_use_by_name.get(app_name)
-        if(app1) return app1
+        if (app1) return app1
 
         // アプリ名でアプリをはっきり特定できない：アプリ名は文字列の場合はRegExでアプリ名を検索（一般ホスト）。
-        if(typeof app_name === "string") {
-            let app2 : App_type|null = null
+        if (typeof app_name === "string") {
+            let app2: App_type | null = null
             this._app_use_by_regex.forEach(rule => rule[0].test(app_name) ? (app2 = rule[1]) : void null)
-            if(app2) return app2
+            if (app2) return app2
         }
 
         // RegExを使ってもアプリが見つからない、またはアプリ名はsymbol：fallbackアプリを使う。
-        if(this._fall_back_app) return this._fall_back_app
+        if (this._fall_back_app) return this._fall_back_app
         else throw new Error("App finder has no fallback")  // fallbackがなければ大変(constructorに設置したはずけど)。エラーを投げる
     }
 
-    private bind_app_1(host : string, app_name : App_id, app : App_type) : void {
+    private bind_app_1(host: string, app_name: App_id, app: App_type): void {
 
         // ホストがすでにセットされた場合：NAMEーAPPマップをゲット。でなければ新しいマップを生成。
         // セット済みのマップをホストアプリマップに入らせる。これは、すでにマップがセットされても問題ない。
         const host_map = this._host_app_use_by_name.get(host) || new Map<App_id, App_type>()
+        if (this.options.no_overwrite && host_map.has(app_name)) { return this.overwrite_handler() }
         host_map.set(app_name, app)
         this._host_app_use_by_name.set(host, host_map)
     }
 
-    private bind_app_2(host : string, app_name : RegExp, app : App_type) : void {
+    private bind_app_2(host: string, app_name: RegExp, app: App_type): void {
 
         // 同じパターンです。
         const arr = this._host_app_use_by_regex.get(host) || []
@@ -158,13 +164,33 @@ export class App_finder<App_id, App_type> {
         this._host_app_use_by_regex.set(host, arr)
     }
 
-    private bind_app_3(host : null, app_name : App_id, app : App_type) : void {
+    private bind_app_3(host: null, app_name: App_id, app: App_type): void {
 
+        if (this.options.no_overwrite && this._app_use_by_name.has(app_name)) { return this.overwrite_handler() }
         this._app_use_by_name.set(app_name, app)
     }
 
-    private bind_app_4(host : null, app_name : RegExp, app : App_type) : void {
+    private bind_app_4(host: null, app_name: RegExp, app: App_type): void {
 
         this._app_use_by_regex.push([app_name, app])
     }
+
+    private overwrite_handler() {
+        if (this.options.overwrite_policy === "ignore") { return }
+        else if (this.options.overwrite_policy === "throw" || this.options.overwrite_policy === undefined) { throw new Error("App finder overwrite happened where policy disallows.") }
+        else { type_check_never(this.options.overwrite_policy); throw new UnexpectedBranchingError() }
+    }
 }
+
+/**
+ * If you want some sort of protection against binding the same name to 2 different apps 
+ * (thus accedentally overwriting the first binding), specify in your options that you want no overwrite.
+ * overwrite policy ignore: ignores the second binding 
+ * overwrite policy throw: throws an error (default behaviour if no overwrite is specified)
+ */
+export type Options = {
+    no_overwrite?: boolean  // beware that overwrite policy cannot help against regex's.
+    overwrite_policy?: "ignore" | "throw"  // undefined treated as throw
+}
+
+class UnexpectedBranchingError extends Error { }

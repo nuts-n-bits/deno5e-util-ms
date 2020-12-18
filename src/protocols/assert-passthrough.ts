@@ -12,8 +12,8 @@ export function type_check<T>(value : T) : T {
     return value
 }
 
-export function type_check_never(value : never) : never
-export function type_check_never(value : never) : void { return }
+export function type_check_never(value : never): never
+export function type_check_never(value : never): void { return }
 
 // Assert functions care just as much about compile time type correctness, but it will also throw JS error should runtime type check fails.
 export function assert_typeof(value : string, type : "string", comment? : string) : string
