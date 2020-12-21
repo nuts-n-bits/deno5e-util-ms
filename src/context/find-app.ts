@@ -151,7 +151,7 @@ export class App_finder<App_id, App_type> {
         // ホストがすでにセットされた場合：NAMEーAPPマップをゲット。でなければ新しいマップを生成。
         // セット済みのマップをホストアプリマップに入らせる。これは、すでにマップがセットされても問題ない。
         const host_map = this._host_app_use_by_name.get(host) || new Map<App_id, App_type>()
-        if (this.options.no_overwrite && host_map.has(app_name)) { return this.overwrite_handler() }
+        if (this.options.no_overwrite !== false && host_map.has(app_name)) { return this.overwrite_handler() }
         host_map.set(app_name, app)
         this._host_app_use_by_name.set(host, host_map)
     }
@@ -166,7 +166,7 @@ export class App_finder<App_id, App_type> {
 
     private bind_app_3(host: null, app_name: App_id, app: App_type): void {
 
-        if (this.options.no_overwrite && this._app_use_by_name.has(app_name)) { return this.overwrite_handler() }
+        if (this.options.no_overwrite !== false && this._app_use_by_name.has(app_name)) { return this.overwrite_handler() }
         this._app_use_by_name.set(app_name, app)
     }
 
@@ -183,8 +183,8 @@ export class App_finder<App_id, App_type> {
 }
 
 /**
- * If you want some sort of protection against binding the same name to 2 different apps 
- * (thus accedentally overwriting the first binding), specify in your options that you want no overwrite.
+ * If you want the ability to bind the same name to 2 different apps 
+ * (thus overwriting the first binding), specify in your options no_overwrite: false
  * overwrite policy ignore: ignores the second binding 
  * overwrite policy throw: throws an error (default behaviour if no overwrite is specified)
  */

@@ -23,10 +23,10 @@ export class Context {
     private readonly _request               : IncomingMessage
     private readonly _response              : ServerResponse
 
-    constructor (req : IncomingMessage, res : ServerResponse, routing_rule : App_finder<string|symbol, Function>) {
+    constructor (req: IncomingMessage, res: ServerResponse, routing_rule: App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
-        let first_cookie : string = ""  // if client header presents more than one Cookie entry, only care about the first.
+        let first_cookie: string = ""  // if client header presents more than one Cookie entry, only care about the first.
         if (typeof req.headers.cookie === "string") { first_cookie = req.headers.cookie }
         else if (!req.headers.cookie) { first_cookie = "" }
         else { first_cookie = req.headers.cookie[0] || "" }
@@ -42,15 +42,15 @@ export class Context {
         this._identified_query  = new Identify("&", "=", "").set(this._handled_uri.query)
     }
 
-    app_chain () : Array<string> {
+    app_chain (): Array<string> {
         return this._app_chain
     }
 
-    cookie (name : string) : string|null {
+    cookie (name: string): string|null {
         return this._identified_cookie.first(name)
     }
 
-    get (index : bigint) : string|null {
+    get (index: bigint): string|null {
 
         let array_len = this._handled_uri.get_ordered.size()
 
@@ -72,7 +72,7 @@ export class Context {
         }
     }
 
-    get_ordered () : Quick_queue<string> {
+    get_ordered (): Quick_queue<string> {
         return this._handled_uri.get_ordered
     }
 
@@ -84,7 +84,7 @@ export class Context {
         return this._request.headers.host || null
     }
 
-    host_length () : number {
+    host_length (): number {
         return this.host_stem() === null ? 0 : this.host_stem()!.split(".").length
     }
 
@@ -104,20 +104,20 @@ export class Context {
         return desired_parts.join(".")
     }
 
-    host_stem () : string|null {  // if host is www.foo.com:4455, then host stem is www.foo.com
+    host_stem (): string|null {  // if host is www.foo.com:4455, then host stem is www.foo.com
         return this.host() === null ? null : this.host()!.split(":")[0]
     }
 
-    lang_code_header () : string|null {
+    lang_code_header (): string|null {
         
         const header_lang = this._request.headers["accept-language"] || null
 
-        const first_header_lang = header_lang ? header_lang.split(",")[0].split(";")[0].trim() : null
+        const first_header_lang = header_lang ? header_lang.split(",")[0].split(";")[0].trim(): null
 
         return first_header_lang
     }
 
-    method () : string|null {
+    method (): string|null {
         return this._request.method || null
     }
 
@@ -126,41 +126,41 @@ export class Context {
      * @return     Returns query value of the corresponding key if found. Returns null otherwise.
      * Use query_entire if want the raw query.
      */
-    query (key : string) : string|null {
+    query (key: string) : string|null {
         const try_find_query_item = this._identified_query.last(key)
         if (try_find_query_item === null) { return null }
         else { return decodeURIComponent(try_find_query_item) }
     }
 
-    query_entire () : string {
+    query_entire (): string {
         return this._handled_uri.query
     }
 
-    remote_address () : string|null {
+    remote_address (): string|null {
         if (typeof this._remote_address === "string") return this._remote_address
         else if (this._remote_address === null) { return null }
         else { return this._remote_address[0] || null }
     }
 
-    request () : IncomingMessage {
+    request (): IncomingMessage {
         return this._request
     }
 
-    response () : ServerResponse {
+    response (): ServerResponse {
         return this._response
     }
 
-    start_app_name () : string {
+    start_app_name (): string {
         return this._handled_uri.app
     }
 
-    ua () : string|null {
+    ua (): string|null {
         const raw : any = this._request.headers["user-agent"] || null
         if(raw instanceof Array) { return raw[0] || null }
         else { return raw }
     }
 
-    uri () : string {
+    uri (): string {
         return this._handled_uri.uri_sans_query
     }
 
