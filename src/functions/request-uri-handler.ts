@@ -6,19 +6,18 @@ const query_char_length = query_char.length
 import { Handled } from "../protocols/handled-uri"
 import { Quick_queue } from "./data-structure/quick-queue"
 
-export function request_uri_handler (uri_str : string) : Handled {
+export function request_uri_handler (uri_str: string): Handled {
 
     /*
 
     A walk-through:
-    uri_str: "https://www.foo.com/aaa/bbb/ccc//ddd/xxx:yyy/image.ext?query=value1&query2=value2"
-    This function deals with this part: "/aaa/bbb/ccc//ddd/xxx:yyy/image.ext?query=value1&query2=value2"
+    input: "/aaa/bbb/ccc//ddd/xxx:yyy/image.ext?query=value1&query2=value2"
 
-    0. "/aaa/bbb/ccc//ddd/xxx:yyy/image.ext?query=value1&query2=value2"
-    1. uni_str = "/aaa/bbb/ccc//ddd/xxx:yyy/image.ext", query = "query=value1&query2=value2"
-    2. uni_str = "aaa/bbb/ccc//ddd/xxx:yyy/image.ext" ...... first slash dropped
-    3. ["aaa", "bbb", "ccc", "", "ddd", "xxx:yyy", "image.ext"] ...... uri split
-    4. ["aaa", "bbb", "ccc", "ddd", "xxx:yyy", "image.ext"] ...... drop empty entries
+    0. "/aaa/bbb/ccc//ddd/x:y_=$$yy/image.ext?query=value1&query2=value2"
+    1. uri_str = "/aaa/bbb/ccc//ddd/x:y_=$$yy/image.ext", query = "query=value1&query2=value2" ...... separated by first question mark
+    2. uri_str = "aaa/bbb/ccc//ddd/x:y_=$$yy/image.ext" ...... first character dropped
+    3. ["aaa", "bbb", "ccc", "", "ddd", "x:y_=$$yy", "image.ext"] ...... split by "/"
+    4. ["aaa", "bbb", "ccc", "ddd", "x:y_=$$yy", "image.ext"] ...... drop empty entries
 
     */
 

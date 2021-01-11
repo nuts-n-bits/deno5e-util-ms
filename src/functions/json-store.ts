@@ -3,7 +3,7 @@ import * as fs from "fs"
 
 export class Json_store {
 
-    constructor (private readonly save_directory : string) {
+    constructor (private readonly save_directory: string) {
 
     }
 

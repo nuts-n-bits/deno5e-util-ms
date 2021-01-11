@@ -20,13 +20,13 @@ const language_code_definition = {
     "zh": true, "zh-cn": true, "zh-hk": true, "zh-mo": true, "zh-sg": true, "zh-tw": true,
 }
 
-export function concrete_check_string_is_language_code(string : string | null) : Language_code | null {
-    if (string === null) { return null }
+export function concrete_check_string_is_language_code(string: string|null|undefined): Language_code | null {
+    if (string === null || string === undefined) { return null }
     else if (language_code_definition[string as Language_code]) { return string as Language_code }
     else { return null }
 }
 
-export function best_fit_chamber_content(requested_codes : Language_code[], chamber : Chamber) : string | null {
+export function best_fit_chamber_content(requested_codes: Language_code[], chamber: Chamber): string | null {
 
     for (const code of requested_codes) {
         const try_1 = chamber.get(code)
@@ -40,7 +40,7 @@ export function best_fit_chamber_content(requested_codes : Language_code[], cham
     return null
 }
 
-export function mlc(requested_codes : string[], chamber : Chamber) : string {
+export function mlc(requested_codes: string[], chamber: Chamber): string {
 
     const filtered_codes = requested_codes.filter(candidate => concrete_check_string_is_language_code(candidate) !== null) as Language_code[]
     // if the chamber contains (one of) the language results in requested codes from accept-language header, return that result (preferred outcome)
@@ -62,7 +62,7 @@ export function mlc(requested_codes : string[], chamber : Chamber) : string {
     }
 }
 
-export function language_list_from_header(accept_language_header : string) {
+export function language_list_from_header(accept_language_header: string) {
 
     // "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5"
     const list = accept_language_header.toLowerCase().split(",").map(x => x.split(";")[0].trim())
@@ -71,9 +71,9 @@ export function language_list_from_header(accept_language_header : string) {
     return list
 }
 
-export function complete_chamber(original_chamber : Raw_input) : Chamber {
+export function complete_chamber(original_chamber: Raw_input): Chamber {
 
-    const cc : Chamber = new Map()
+    const cc: Chamber = new Map()
 
     for (let [k, v] of original_chamber) {
         const partial = concrete_check_string_is_language_code(k.split("-")[0])

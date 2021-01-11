@@ -1,11 +1,14 @@
+import { async_sleep } from "../misc"
+
 // the hash function should have > 32 bits image size
-export function memory_hard_key_derivation(preimage : Uint8Array, hash_function : (x : Uint8Array) => Uint8Array, memory_factor : number) : Uint8Array {
+export async function memory_hard_key_derivation(preimage : Uint8Array, hash_function : (x : Uint8Array) => Uint8Array, memory_factor : number) : Promise<Uint8Array> {
 
     const memory_hard_image_pool : Array<Uint8Array> = [hash_function(preimage)]
     let phase_2_latest_image : Uint8Array
 
     for(let i=1; i<memory_factor; i++) {
         memory_hard_image_pool[i] = hash_function(memory_hard_image_pool[i-1])
+        await async_sleep(0)
     }
 
     phase_2_latest_image = memory_hard_image_pool[memory_factor-1]
@@ -14,6 +17,7 @@ export function memory_hard_key_derivation(preimage : Uint8Array, hash_function 
         const number_derived = (phase_2_latest_image[0] << 24 | phase_2_latest_image[1] << 16 | phase_2_latest_image[2] << 8 | phase_2_latest_image[3] << 0)>>>0
         const hash_choice = memory_hard_image_pool[number_derived % memory_hard_image_pool.length]
         phase_2_latest_image = hash_function(ab_concat(hash_choice, phase_2_latest_image))
+        await async_sleep(0)
     }
 
     return memory_hard_image_pool[memory_hard_image_pool.length-1]

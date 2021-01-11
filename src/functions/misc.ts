@@ -3,6 +3,13 @@ export function is_email (str: string): boolean {
     return /^[a-zA-Z0-9._~\-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)
 }
 
+export function clamp<T extends bigint|number>(lower: T|null, input: T, upper: T|null): T {
+
+    if(lower !== null && input < lower) { return lower }
+    else if(upper !== null && input > upper) { return upper }
+    else { return input }
+}
+
 export function random_int (lower_bound: number, upper_bound: number): number {
 
     let upper: number, lower: number

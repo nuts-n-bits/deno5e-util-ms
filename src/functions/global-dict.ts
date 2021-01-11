@@ -1,12 +1,14 @@
 
 import { Quick_queue } from "./data-structure/quick-queue"
-import { Deferred_job_queue } from "./deferred-job-queue"
 
 export type Severeness = 1|10|100|1000
 export type Dismissed = boolean
 export type Error_report = [Date, Error, bigint, Severeness, Dismissed]
 export type Visit_record = {ra: string, url: string, ua: string, date: Date, id: bigint}
 
+/**
+ * @deprecated since 0.2020.11.0
+ */
 export class Global_dict {
 
     private err_id = 0n
@@ -14,8 +16,6 @@ export class Global_dict {
 
     public get cumulative_error_count() { return this.err_id }
     public get cumulative_visit_count() { return this.visit_id }
-
-    public readonly deferred_job_queue = new Deferred_job_queue()
 
     public readonly error_collection : Map<string, Quick_queue<Error_report>> = new Map()
     // used to keep track of currently reported error, to de-duplicate error reporting

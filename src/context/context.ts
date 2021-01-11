@@ -7,12 +7,12 @@ import { request_uri_handler } from "../functions/request-uri-handler"
 import { Handled } from "../protocols/handled-uri"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
-import { mlc } from "../functions/language-logics/best-fit-language-code"
 import { Quick_queue } from "../functions/data-structure/quick-queue"
 
 export class Context {
 
     public  readonly time_of_admission      : number = Date.now()
+
     public  readonly app_finder             : App_finder<string|symbol, Function>
 
     private          _app_chain             : Array<string> = []
@@ -23,6 +23,9 @@ export class Context {
     private readonly _request               : IncomingMessage
     private readonly _response              : ServerResponse
 
+    /** 
+     * @param cid Collidable IDentifier. String. For troubleshooting. Doesn't have to be unique, but the more unique the better. Will still work if left to be ("").
+     */
     constructor (req: IncomingMessage, res: ServerResponse, routing_rule: App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
