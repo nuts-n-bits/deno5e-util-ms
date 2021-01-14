@@ -24,27 +24,27 @@ export function assert_typeof(value: undefined, type: "undefined", comment?: str
 export function assert_typeof(value: Function, type: "function", comment?: string): Function
 export function assert_typeof(value: boolean, type: "boolean", comment?: string): boolean
 export function assert_typeof(value: any, type: any, comment?: string) {
-    if(typeof value === type) return value
+    if(typeof value === type) { return value }
     else throw new AssertionTypeOfError(comment)
 }
 
 export function assert_constructor<T extends new (...args:any[]) => any>(item: InstanceType<T>, constructor: T, comment?: string): InstanceType<T> {
-    if(item as any instanceof constructor) return item
+    if(item as any instanceof constructor) { return item }
     else throw new AssertionSameConstructorError(comment)
 }
 
 export function assert_truthy<T>(value: T, comment?: string): T {
-    if(value) return value
+    if(value) { return value }
     else throw new AssertionTruthyError(comment)
 }
 
 export function assert_falsy<T>(value: T, comment?: string): T {
-    if(!value) return value
+    if(!value) { return value }
     else throw new AssertionFalsyError(comment)
 }
 
 export function assert_strict_equality<T>(lhs: T, rhs: T, comment?: string): T {
-    if(lhs === rhs) return lhs
+    if(lhs === rhs) { return lhs }
     else throw new AssertionStrictEqualityError(comment)
 }
 

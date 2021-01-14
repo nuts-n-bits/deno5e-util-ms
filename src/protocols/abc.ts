@@ -2,8 +2,31 @@ class Abc <T> {
     constructor(public readonly v : T) {}
 }
 
+class Wxyz <T, U> {
+    constructor(public readonly discriminator: T, public readonly v : U) {}
+}
+
 // When a function has multiple distinct return types and they're difficult to differentiate with 
 // just regular old object literal types. 
+
+// Furthermore, Typescript treat single object literal types differently from unioned object types, causing problems:
+//   function id_or_name(input: {id:number, name:null}|{name:string})
+//   id_or_name({id:3, name:"alex"}) is a valid call, this does not conform to everyone's intuition. 
+
+
+
+// CRAZY
+// function id_or_name(input: {id:number; name:null}|{name:string}): void {return}
+// id_or_name({id:3, name:"alex"})
+
+// class Foo{ foo: "foo"="foo" } 
+// class Bar{ bar: "bar"="bar" }
+// declare function fn(baz: {foo: null, bar: string} | { foo: bigint}): void 
+
+// fn({bar: "lol", foo: 3n})
+
+// const x: {c: Bar} = {f: "", c: new Bar()}
+
 
 // For example, a funciton may have the following return type: 
 //   {status: 200, data: Uint8Array} | {status: 500} | {status: 302, headers: [string, string]}
@@ -34,10 +57,10 @@ export class S <T> extends Abc <T> {}
 export class T <T> extends Abc <T> {}
 export class U <T> extends Abc <T> {}
 export class V <T> extends Abc <T> {}
-export class W <T> extends Abc <T> {}
-export class X <T> extends Abc <T> {}
-export class Y <T> extends Abc <T> {}
-export class Z <T> extends Abc <T> {}
+export class W <T, U> extends Wxyz <T, U> {}
+export class X <T, U> extends Wxyz <T, U> {}
+export class Y <T, U> extends Wxyz <T, U> {}
+export class Z <T, U> extends Wxyz <T, U> {}
 
 export class A0 <T> extends Abc <T> {}
 export class A1 <T> extends Abc <T> {}
@@ -281,46 +304,46 @@ export class V7 <T> extends Abc <T> {}
 export class V8 <T> extends Abc <T> {}
 export class V9 <T> extends Abc <T> {}
 
-export class W0 <T> extends Abc <T> {}
-export class W1 <T> extends Abc <T> {}
-export class W2 <T> extends Abc <T> {}
-export class W3 <T> extends Abc <T> {}
-export class W4 <T> extends Abc <T> {}
-export class W5 <T> extends Abc <T> {}
-export class W6 <T> extends Abc <T> {}
-export class W7 <T> extends Abc <T> {}
-export class W8 <T> extends Abc <T> {}
-export class W9 <T> extends Abc <T> {}
+export class W0 <T, U> extends Wxyz <T, U> {}
+export class W1 <T, U> extends Wxyz <T, U> {}
+export class W2 <T, U> extends Wxyz <T, U> {}
+export class W3 <T, U> extends Wxyz <T, U> {}
+export class W4 <T, U> extends Wxyz <T, U> {}
+export class W5 <T, U> extends Wxyz <T, U> {}
+export class W6 <T, U> extends Wxyz <T, U> {}
+export class W7 <T, U> extends Wxyz <T, U> {}
+export class W8 <T, U> extends Wxyz <T, U> {}
+export class W9 <T, U> extends Wxyz <T, U> {}
 
-export class X0 <T> extends Abc <T> {}
-export class X1 <T> extends Abc <T> {}
-export class X2 <T> extends Abc <T> {}
-export class X3 <T> extends Abc <T> {}
-export class X4 <T> extends Abc <T> {}
-export class X5 <T> extends Abc <T> {}
-export class X6 <T> extends Abc <T> {}
-export class X7 <T> extends Abc <T> {}
-export class X8 <T> extends Abc <T> {}
-export class X9 <T> extends Abc <T> {}
+export class X0 <T, U> extends Wxyz <T, U> {}
+export class X1 <T, U> extends Wxyz <T, U> {}
+export class X2 <T, U> extends Wxyz <T, U> {}
+export class X3 <T, U> extends Wxyz <T, U> {}
+export class X4 <T, U> extends Wxyz <T, U> {}
+export class X5 <T, U> extends Wxyz <T, U> {}
+export class X6 <T, U> extends Wxyz <T, U> {}
+export class X7 <T, U> extends Wxyz <T, U> {}
+export class X8 <T, U> extends Wxyz <T, U> {}
+export class X9 <T, U> extends Wxyz <T, U> {}
 
-export class Y0 <T> extends Abc <T> {}
-export class Y1 <T> extends Abc <T> {}
-export class Y2 <T> extends Abc <T> {}
-export class Y3 <T> extends Abc <T> {}
-export class Y4 <T> extends Abc <T> {}
-export class Y5 <T> extends Abc <T> {}
-export class Y6 <T> extends Abc <T> {}
-export class Y7 <T> extends Abc <T> {}
-export class Y8 <T> extends Abc <T> {}
-export class Y9 <T> extends Abc <T> {}
+export class Y0 <T, U> extends Wxyz <T, U> {}
+export class Y1 <T, U> extends Wxyz <T, U> {}
+export class Y2 <T, U> extends Wxyz <T, U> {}
+export class Y3 <T, U> extends Wxyz <T, U> {}
+export class Y4 <T, U> extends Wxyz <T, U> {}
+export class Y5 <T, U> extends Wxyz <T, U> {}
+export class Y6 <T, U> extends Wxyz <T, U> {}
+export class Y7 <T, U> extends Wxyz <T, U> {}
+export class Y8 <T, U> extends Wxyz <T, U> {}
+export class Y9 <T, U> extends Wxyz <T, U> {}
 
-export class Z0 <T> extends Abc <T> {}
-export class Z1 <T> extends Abc <T> {}
-export class Z2 <T> extends Abc <T> {}
-export class Z3 <T> extends Abc <T> {}
-export class Z4 <T> extends Abc <T> {}
-export class Z5 <T> extends Abc <T> {}
-export class Z6 <T> extends Abc <T> {}
-export class Z7 <T> extends Abc <T> {}
-export class Z8 <T> extends Abc <T> {}
-export class Z9 <T> extends Abc <T> {}
+export class Z0 <T, U> extends Wxyz <T, U> {}
+export class Z1 <T, U> extends Wxyz <T, U> {}
+export class Z2 <T, U> extends Wxyz <T, U> {}
+export class Z3 <T, U> extends Wxyz <T, U> {}
+export class Z4 <T, U> extends Wxyz <T, U> {}
+export class Z5 <T, U> extends Wxyz <T, U> {}
+export class Z6 <T, U> extends Wxyz <T, U> {}
+export class Z7 <T, U> extends Wxyz <T, U> {}
+export class Z8 <T, U> extends Wxyz <T, U> {}
+export class Z9 <T, U> extends Wxyz <T, U> {}

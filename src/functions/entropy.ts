@@ -37,10 +37,10 @@ export class Entropy {
     }
 
     produce(): string
-    produce(format: "hex" | "b64"): string
+    produce(format: "hex" | "b64" | "b64-url" | "b64-url-no-padding"): string
     produce(format: "raw"): Uint8Array
     produce(format: "bigint"): bigint
-    produce(format?: "hex" | "b64" | "raw" | "bigint") {
+    produce(format?: "hex" | "b64" | "b64-url" | "b64-url-no-padding" | "raw" | "bigint") {
 
         const owpc = this.one_way_preservation_counter_get_and_advance()
         const message_length = this.entropy.length + owpc.length + this.foundation_entropy.length
@@ -52,13 +52,17 @@ export class Entropy {
         this.entropy = this.hash_function(message_to_digest)
 
         if(format === "raw")
-            return this.entropy
+            { return this.entropy }
         else if(format === "b64")
-            return Buffer.from(this.entropy).toString("base64")
+            { return Buffer.from(this.entropy).toString("base64") }
+        else if(format === "b64-url") 
+            { return Buffer.from(this.entropy).toString("base64").replace(/\+/g, "-").replace(/\//g, "_") }
+        else if(format === "b64-url-no-padding") 
+            { return Buffer.from(this.entropy).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/\=/g, "") }
         else if(format === "bigint")
-            return uint8a_to_bigint(this.entropy)
+            { return uint8a_to_bigint(this.entropy) }
         else /* hex */
-            return Array.from(this.entropy).map(hexify).join("")
+            { return Array.from(this.entropy).map(hexify).join("") }
     }
 
 }
