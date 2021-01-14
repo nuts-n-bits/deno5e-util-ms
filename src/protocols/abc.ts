@@ -1,8 +1,8 @@
-class Abc <T> {
+export class Abc <T> {
     constructor(public readonly v : T) {}
 }
 
-class Wxyz <T, U> {
+export class Wxyz <T, U> {
     constructor(public readonly discriminator: T, public readonly v : U) {}
 }
 
