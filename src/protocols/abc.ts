@@ -15,8 +15,8 @@ export class Wxyz <T, U> {
 
 
 
-// CRAZY
-// function id_or_name(input: {id:number; name:null}|{name:string}): void {return}
+//CRAZY
+// function id_or_name(input: {id:number; name:"joe"}|{name:string}|{irrelevant: Date}): void {return}
 // id_or_name({id:3, name:"alex"})
 
 // class Foo{ foo: "foo"="foo" } 

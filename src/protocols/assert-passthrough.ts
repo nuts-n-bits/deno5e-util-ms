@@ -1,3 +1,5 @@
+import { T, U } from "./abc"
+
 export class AssertionTypeOfError extends Error {}
 export class AssertionSameConstructorError extends Error {}
 export class AssertionTruthyError extends Error {}
@@ -8,8 +10,16 @@ export class AssertionNotNullOrUndefinedError extends Error {}
 export class AssertionNeverError extends Error {}
 
 // Verify functions is for compile time type hinting. It's for TS to throw TS errors and will never throw a JS error
-export function type_check<T>(value: T): T {
-    return value
+export function type_check<T>(v: T): T
+export function type_check<T, U>(v1: T, v2: U): [T, U]
+export function type_check<T, U, V>(v1: T, v2: U, v3: V): [T, U, V]
+export function type_check<T, U, V, W>(v1: T, v2: U, v3: V, v4: W): [T, U, V, W]
+export function type_check<T, U, V, W, X>(v1: T, v2: U, v3: V, v4: W, v5: X): [T, U, V, W, X]
+export function type_check<T, U, V, W, X, Y>(v1: T, v2: U, v3: V, v4: W, v5: X, v6: Y): [T, U, V, W, X, Y]
+export function type_check<T, U, V, W, X, Y, Z>(v1: T, v2: U, v3: V, v4: W, v5: X, v6: Y, v7: Z): [T, U, V, W, X, Y, Z]
+export function type_check(...args: any[]): any {
+    if(args.length === 1) { return args[0] }
+    else { return args }
 }
 
 export function type_check_never(value: never): never

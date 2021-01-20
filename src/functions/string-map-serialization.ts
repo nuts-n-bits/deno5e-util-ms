@@ -6,11 +6,11 @@ export function serialize(map: Map<string, string>): string {
     return JSON.stringify(jsonObj)
 }
 
-export function deserialize(string: string, coercion=true): {reports: {parseError: boolean, coercion: boolean, typeIsNotStringInstances: Array<[string, any]>}, map: Map<string, string>} {
+export function deserialize(string: string, coercion=true): {reports: {parseError: null|Error, coercion: boolean, typeIsNotStringInstances: Array<[string, any]>}, map: Map<string, string>} {
 
     const map = new Map<string, string>()
     const reports = {
-        parseError: false,
+        parseError: null,
         coercion: coercion,
         typeIsNotStringInstances: [] as Array<[string, any]>
     }
@@ -36,7 +36,7 @@ export function deserialize(string: string, coercion=true): {reports: {parseErro
         })
     } 
     catch(e) {
-        reports.parseError = true
+        reports.parseError = e
         return {reports, map}
     }
     return {reports, map}
