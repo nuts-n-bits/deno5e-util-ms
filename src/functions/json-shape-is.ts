@@ -67,7 +67,7 @@ const test_map_allow_extra_in_example = {
     "string": c_string,
     "number": c_number,
     "boolean": c_boolean,
-    "object": (test_subject: any, eg_type: any) => c_object(test_subject, eg_type, "in-test"),
+    "object": (test_subject: any, eg_type: any) => c_object(test_subject, eg_type, "in-example"),
     "function": uh_oh,
     "symbol": c_symbol,
     "undefined": c_undefined,
