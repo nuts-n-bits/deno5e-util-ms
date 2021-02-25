@@ -6,7 +6,7 @@ import { json_shape_is } from "../../lib-nnbc/src/functions/json-shape-is.ts"
 export async function app_sha3binding(req: ServerRequest, pu: Parsed_url): Promise<Response> {
 
     const preimage = JSON.parse(pu.decoded_query_map.get("preimage") ?? "null")
-    
-    console.log(sha3_256(new TextEncoder().encode("abc")))
-    throw new Error("unimplemented!")
+    if(!json_shape_is(preimage, [0])) { return { status: 400 } }
+    const image = sha3_256(new Uint8Array(preimage))
+    return { status: 200, body: image }
 }
