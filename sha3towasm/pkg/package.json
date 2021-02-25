@@ -1,0 +1,13 @@
+{
+  "name": "sha3towasm",
+  "collaborators": [
+    "nuts-n-bits <nuts-n-bits@outlook.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "sha3towasm_bg.wasm",
+    "sha3towasm.js",
+    "sha3towasm_bg.js"
+  ],
+  "main": "sha3towasm.js"
+}
