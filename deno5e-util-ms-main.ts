@@ -34,7 +34,7 @@ for await (const request of server) {
             await request.respond({status: 500, body: (e as Error).stack})
         }
         catch(e) {
-            console.error("Fallback request has botched")
+            console.error("Fallback response has botched")
         }
     }
 }
