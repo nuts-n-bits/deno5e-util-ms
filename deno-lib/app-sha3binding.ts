@@ -37,7 +37,7 @@ export async function app_sha_binding(req: ServerRequest, pu: Parsed_url): Promi
         image = hash_function(new Uint8Array(parsed_json))
     }
     else {
-        return { status: 400, body: "HTTP 400, must specify exactly one of &preimage-json or &preimage-utf8 query params" }
+        return { status: 400, body: "HTTP 400, must specify exactly one of &preimage-json or &preimage-utf8 query params. Otherwise, must use POST method and supply preimage in body." }
     }
 
     const response_type = pu.decoded_query_map.get("format")

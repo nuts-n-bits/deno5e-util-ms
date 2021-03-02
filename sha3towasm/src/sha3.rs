@@ -3,6 +3,8 @@ use crypto::sha3::Sha3;
 use crypto::sha2::Sha256;
 use crypto::sha1::Sha1;
 use wasm_bindgen::prelude::*;
+use std::collections::HashMap;
+use std::cell::RefCell;
 
 #[wasm_bindgen]
 pub fn sha3_256(input: &[u8]) -> std::vec::Vec<u8> {
@@ -16,6 +18,66 @@ pub fn sha3_256(input: &[u8]) -> std::vec::Vec<u8> {
     let out: &mut [u8] = &mut [0; 32];
     hasher.result(out);
     (*out).to_vec()
+}
+
+#[wasm_bindgen]
+pub struct ChunkedResult {
+    result: Option<std::vec::Vec<u8>>,
+    continue_with: Option<i32>,
+    error: bool,
+}
+
+std::thread_local! {
+    static HASHMAP: RefCell<HashMap<i32, Sha3>> = RefCell::new(HashMap::default());
+    static ctr: RefCell<i32> = RefCell::new(0);
+}
+
+#[wasm_bindgen]
+pub fn sha3_256_chunked(chunked_input: &[u8], use_existing: Option<i32>, close_and_output: bool) -> ChunkedResult {
+
+    // create a SHA3-256 object
+    let hasher: Sha3;
+    
+    match use_existing {
+        None => { 
+            hasher = Sha3::sha3_256();
+            ctr.with(|c| {
+                HASHMAP.with(|hm| hm.borrow_mut().insert(*c.borrow(), hasher));
+                use_existing = Some(*c.borrow());
+                c.set()
+            });
+        } 
+        Some(id) => { 
+            let try_cache = HASHMAP.with(|hm| hm.borrow_mut().get_mut(&ctr));
+
+            match try_cache {
+                None => {
+                    return ChunkedResult { result: None, continue_with: None, error: true };
+                }
+                Some(&mut sha3) => {
+                    sha3.input(chunked_input);
+                }
+            }
+        }
+    }
+
+    if chunked_input.len() > 0 {
+        hasher.input(chunked_input);
+    }
+
+    if close_and_output {
+        // read hash digest
+        let out: &mut [u8] = &mut [0; 32];
+        hasher.result(out);
+        match use_existing {
+            None => {}
+            Some(id) => { HASHMAP.with(|hm| hm.borrow_mut().remove(&id)); }
+        }
+        return ChunkedResult { result: Some((*out).to_vec()), continue_with: None, error: false };
+    }
+    else {
+        return ChunkedResult { result: None, continue_with: use_existing, error: false };
+    }
 }
 
 #[wasm_bindgen]
