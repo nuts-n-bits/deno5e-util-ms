@@ -1,8 +1,8 @@
 
 import { ServerRequest, Response } from "https://deno.land/std@0.88.0/http/server.ts"
-import { Parsed_url } from "./parse-url.ts"
+import { ParsedUrl } from "./parse-url.ts"
 
-export async function app_ack(req: ServerRequest, pu: Parsed_url): Promise<Response> {
+export async function app_ack(req: ServerRequest, pu: ParsedUrl): Promise<Response> {
 
     console.log("serving", pu.decoded_fragments[1])
 

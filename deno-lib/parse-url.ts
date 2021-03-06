@@ -1,5 +1,5 @@
 
-export type Parsed_url = ReturnType<typeof parse_url>
+export type ParsedUrl = ReturnType<typeof parse_url>
 
 export function parse_url(full_url: string) {
     const query_pos = full_url.indexOf("?")
