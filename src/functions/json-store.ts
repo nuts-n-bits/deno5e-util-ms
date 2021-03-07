@@ -1,7 +1,4 @@
-
-import * as fs from "fs"
-
-type Fs = {
+export type Fs = {
     existsSync: (path: string) => boolean,
     readFileSync: (path: string) => Uint8Array,
     writeFileSync: (path: string, data: Uint8Array) => void,
@@ -14,7 +11,14 @@ type Fs = {
 
 export class Json_store {
 
-    constructor (private readonly save_directory: string, private readonly fs: Fs) {
+    constructor (
+        private readonly save_directory: string, 
+        private readonly fs: Fs, 
+        private readonly stringifier = (obj: any) => JSON.stringify(obj),
+        private readonly parser = (str: string) => JSON.parse(str),
+        private readonly encoder = new TextEncoder(),
+        private readonly decoder = new TextDecoder(),
+    ) {
 
     }
 
@@ -39,21 +43,21 @@ export class Json_store {
      * @param name if json does not exist, throws error. check existance with json_exists first.
      */
     get_json_sync (name: string): any {
-        return JSON.parse(fs.readFileSync(this.json_path_by_name(name)).toString("utf-8"))
+        return this.parser(this.decoder.decode(this.fs.readFileSync(this.json_path_by_name(name))))
     }
 
     async get_json (name: string): Promise<any> {
         const buffer = await this.fs.readFile(this.json_path_by_name(name))
         const string = new TextDecoder().decode(buffer)
-        return JSON.parse(string)
+        return this.parser(string)
     }
 
     set_json_sync (name: string, json: any): void {
-        this.fs.writeFileSync(this.json_path_by_name(name), Buffer.from(JSON.stringify(json), "utf-8"))
+        this.fs.writeFileSync(this.json_path_by_name(name), this.encoder.encode(this.stringifier(json)))
     }
 
     async set_json (name: string, json: any): Promise<void> {
-        return await this.fs.writeFile(this.json_path_by_name(name), Buffer.from(JSON.stringify(json), "utf-8"))
+        return await this.fs.writeFile(this.json_path_by_name(name), this.encoder.encode(this.stringifier(json)))
     }
 
     delete_json_sync (name: string): void {
