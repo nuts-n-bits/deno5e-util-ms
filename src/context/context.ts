@@ -15,7 +15,7 @@ export class Context {
     private readonly _identified_cookie     : Identify
     private readonly _remote_address        : string|string[]|null
 
-    constructor (private req: IncomingMessage, private res: ServerResponse, public readonly routing_rule: App_finder<string|symbol, Function>) {
+    constructor (private req: IncomingMessage, public readonly routing_rule: App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
         let first_cookie: string = ""  // if client header presents more than one Cookie entry, only care about the first.
@@ -93,14 +93,6 @@ export class Context {
         if (typeof this._remote_address === "string") return this._remote_address
         else if (this._remote_address === null) { return null }
         else { return this._remote_address[0] || null }
-    }
-
-    request (): IncomingMessage {
-        return this.req
-    }
-
-    response (): ServerResponse {
-        return this.res
     }
 
     ua (): string|null {
