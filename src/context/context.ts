@@ -53,6 +53,10 @@ export class Context {
         }
     }
 
+    query (key: string): string|null {
+        return this.pu.decoded_query_map.get(key) ?? null
+    }
+
     host () {  // "www.foo.com:4455"
         return this.req.headers.host || null
     }
