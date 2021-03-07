@@ -75,7 +75,7 @@ export class App_finder<App_id, App_type> {
         }
     }
 
-    find_app(host: string | null, app_name: App_id): App_type {
+    find_app(host: string|null, app_name: App_id): App_type {
 
         // ホストがなければ一般ホストのルールへ
         // ホストがあれば特定のホストのルールを試みる
@@ -108,7 +108,7 @@ export class App_finder<App_id, App_type> {
                 const host_app_dict = this._host_app_use_by_name.get(host)
                 if (host_app_dict) {
                     const app = host_app_dict.get(app_name)
-                    if (app) return app
+                    if (app) { return app }
                 }
 
                 // アプリ名でアプリをはっきり特定できない：アプリ名は文字列の場合はRegExでアプリ名を検索（同じホストのRegExのみを使う）。
@@ -117,13 +117,13 @@ export class App_finder<App_id, App_type> {
                     if (host_app_dict_regex) {
                         let app: App_type | null = null
                         host_app_dict_regex.forEach(rule => rule[0].test(app_name) ? (app = rule[1]) : void null)
-                        if (app) return app
+                        if (app) { return app }
                     }
                 }
 
                 // RegExを使ってもアプリが見つからない、またはアプリ名はsymbol：fallbackアプリを使う。
                 const fallback_app = this._host_fall_back_app.get(host)
-                if (fallback_app) return fallback_app
+                if (fallback_app) { return fallback_app }
 
                 // ホスト関連のfallbackがない場合：一般ホストのルールを採用。ifブランチを抜け出す。
             }
@@ -132,18 +132,18 @@ export class App_finder<App_id, App_type> {
         // ホストを知っていない。また、ホストを知ったけどアプリもfallbackもない。
         // まずはアプリ名によって、一般ホストのアプリを検索する。
         const app1 = this._app_use_by_name.get(app_name)
-        if (app1) return app1
+        if (app1) { return app1 }
 
         // アプリ名でアプリをはっきり特定できない：アプリ名は文字列の場合はRegExでアプリ名を検索（一般ホスト）。
         if (typeof app_name === "string") {
             let app2: App_type | null = null
             this._app_use_by_regex.forEach(rule => rule[0].test(app_name) ? (app2 = rule[1]) : void null)
-            if (app2) return app2
+            if (app2) { return app2 }
         }
 
         // RegExを使ってもアプリが見つからない、またはアプリ名はsymbol：fallbackアプリを使う。
-        if (this._fall_back_app) return this._fall_back_app
-        else throw new Error("App finder has no fallback")  // fallbackがなければ大変(constructorに設置したはずけど)。エラーを投げる
+        if (this._fall_back_app) { return this._fall_back_app }
+        else { throw new Error("App finder has no fallback") }  // fallbackがなければ大変(constructorに設置したはずけど)。エラーを投げる
     }
 
     private bind_app_1(host: string, app_name: App_id, app: App_type): void {

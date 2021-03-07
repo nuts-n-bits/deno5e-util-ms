@@ -3,30 +3,19 @@
 // const EEVDF = "earliest eligible virtual deadline first"
 
 import { IncomingMessage, ServerResponse } from "http"
-import { request_uri_handler } from "../functions/request-uri-handler"
-import { Handled } from "../protocols/handled-uri"
+import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
-import { Quick_queue } from "../functions/data-structure/quick-queue"
 
 export class Context {
 
-    public  readonly time_of_admission      : number = Date.now()
+    public  readonly time_of_admission      = Date.now()
+    public  readonly pu                     : ParsedUrl
 
-    public  readonly app_finder             : App_finder<string|symbol, Function>
-
-    private          _app_chain             : Array<string> = []
     private readonly _identified_cookie     : Identify
-    private readonly _handled_uri           : Handled
-    private          _identified_query      : Identify
     private readonly _remote_address        : string|string[]|null
-    private readonly _request               : IncomingMessage
-    private readonly _response              : ServerResponse
 
-    /** 
-     * @param cid Collidable IDentifier. String. For troubleshooting. Doesn't have to be unique, but the more unique the better. Will still work if left to be ("").
-     */
-    constructor (req: IncomingMessage, res: ServerResponse, routing_rule: App_finder<string|symbol, Function>) {
+    constructor (private req: IncomingMessage, private res: ServerResponse, public readonly routing_rule: App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
         let first_cookie: string = ""  // if client header presents more than one Cookie entry, only care about the first.
@@ -34,40 +23,29 @@ export class Context {
         else if (!req.headers.cookie) { first_cookie = "" }
         else { first_cookie = req.headers.cookie[0] || "" }
         this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
-        this._remote_address    = req.headers["x-real-ip"] || req.connection.remoteAddress || null
-
-        this._request           = req
-        this._response          = res
-        this.app_finder         = routing_rule
-
-        // handle uri, assign uri handler results.
-        this._handled_uri       = request_uri_handler(decodeURI(req.url||"/"))
-        this._identified_query  = new Identify("&", "=", "").set(this._handled_uri.query)
-    }
-
-    app_chain (): Array<string> {
-        return this._app_chain
+        this._remote_address = req.headers["x-real-ip"] || req.connection.remoteAddress || null
+        this.pu = parse_url(req.url||"/")
     }
 
     cookie (name: string): string|null {
         return this._identified_cookie.first(name)
     }
 
-    get (index: bigint): string|null {
+    frgament (index: number): string|null {
 
-        let array_len = this._handled_uri.get_ordered.size()
+        let array_len = this.pu.decoded_fragments.length
 
-        if(index > array_len - 1n) {
+        if(index > array_len - 1) {
 
             return null
         }
-        else if(index > -1n) {
+        else if(index > -1) {
 
-            return this._handled_uri.get_ordered.peek(index)
+            return this.pu.decoded_fragments[index] ?? null
         }
         else if(index >= -array_len) {
 
-            return this._handled_uri.get_ordered.peek(index + array_len)
+            return this.pu.decoded_fragments[index + array_len] ?? null
         }
         else {
 
@@ -75,16 +53,8 @@ export class Context {
         }
     }
 
-    get_ordered (): Quick_queue<string> {
-        return this._handled_uri.get_ordered
-    }
-
-    handled_uri () {
-        return this._handled_uri
-    }
-
     host () {  // "www.foo.com:4455"
-        return this._request.headers.host || null
+        return this.req.headers.host || null
     }
 
     host_length (): number {
@@ -111,32 +81,8 @@ export class Context {
         return this.host() === null ? null : this.host()!.split(":")[0]
     }
 
-    lang_code_header (): string|null {
-        
-        const header_lang = this._request.headers["accept-language"] || null
-
-        const first_header_lang = header_lang ? header_lang.split(",")[0].split(";")[0].trim(): null
-
-        return first_header_lang
-    }
-
     method (): string|null {
-        return this._request.method || null
-    }
-
-    /**
-     * @param  key Is the key of a specific query segment.
-     * @return     Returns query value of the corresponding key if found. Returns null otherwise.
-     * Use query_entire if want the raw query.
-     */
-    query (key: string) : string|null {
-        const try_find_query_item = this._identified_query.last(key)
-        if (try_find_query_item === null) { return null }
-        else { return decodeURIComponent(try_find_query_item) }
-    }
-
-    query_entire (): string {
-        return this._handled_uri.query
+        return this.req.method || null
     }
 
     remote_address (): string|null {
@@ -146,25 +92,17 @@ export class Context {
     }
 
     request (): IncomingMessage {
-        return this._request
+        return this.req
     }
 
     response (): ServerResponse {
-        return this._response
-    }
-
-    start_app_name (): string {
-        return this._handled_uri.app
+        return this.res
     }
 
     ua (): string|null {
-        const raw : any = this._request.headers["user-agent"] || null
+        const raw : any = this.req.headers["user-agent"] || null
         if(raw instanceof Array) { return raw[0] || null }
         else { return raw }
-    }
-
-    uri (): string {
-        return this._handled_uri.uri_sans_query
     }
 
 }
