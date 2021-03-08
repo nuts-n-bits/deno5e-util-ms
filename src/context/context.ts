@@ -2,29 +2,30 @@
 // const Topological Data Analysis = "https://www.youtube.com/?q=Topological+data+analysis"
 // const EEVDF = "earliest eligible virtual deadline first"
 
-import { IncomingMessage, ServerResponse } from "http"
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
+import { HttpRequest, HttpResponse } from "./http-interface-type"
+
+export { App_finder, HttpRequest, HttpResponse }
 
 export class Context {
 
     public  readonly time_of_admission      = Date.now()
     public  readonly pu                     : ParsedUrl
+    public  readonly header_map             : Map<string, string[]>
 
     private readonly _identified_cookie     : Identify
-    private readonly _remote_address        : string|string[]|null
+    private readonly _remote_address        : string
 
-    constructor (private req: IncomingMessage, public readonly routing_rule: App_finder<string|symbol, Function>) {
+    constructor (private req: HttpRequest, public readonly routing_rule: App_finder<string|symbol, Function>) {
 
         // parse cookie and client address
-        let first_cookie: string = ""  // if client header presents more than one Cookie entry, only care about the first.
-        if (typeof req.headers.cookie === "string") { first_cookie = req.headers.cookie }
-        else if (!req.headers.cookie) { first_cookie = "" }
-        else { first_cookie = req.headers.cookie[0] || "" }
+        this.header_map = repeatable_entry_to_map(req.headers)
+        const first_cookie: string = this.header_map.get("cookie")?.[0] ?? ""  // if client header presents more than one Cookie entry, only care about the first.
         this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
-        this._remote_address = req.headers["x-real-ip"] || req.connection.remoteAddress || null
-        this.pu = parse_url(req.url||"/")
+        this._remote_address = this.header_map.get("x-real-ip")?.[0] || req.tcp.remote_address
+        this.pu = parse_url(req.url)
     }
 
     cookie (name: string): string|null {
@@ -57,8 +58,8 @@ export class Context {
         return this.pu.decoded_query_map.get(key) ?? null
     }
 
-    host () {  // "www.foo.com:4455"
-        return this.req.headers.host || null
+    host (): string|null {  // "www.foo.com:4455"
+        return this.header_map.get("host")?.[0] || null
     }
 
     host_length (): number {
@@ -85,20 +86,25 @@ export class Context {
         return this.host() === null ? null : this.host()!.split(":")[0]
     }
 
-    method (): string|null {
-        return this.req.method || null
+    method (): string {
+        return this.req.method
     }
 
-    remote_address (): string|null {
-        if (typeof this._remote_address === "string") return this._remote_address
-        else if (this._remote_address === null) { return null }
-        else { return this._remote_address[0] || null }
+    remote_address (): string {
+        return this._remote_address
     }
 
     ua (): string|null {
-        const raw : any = this.req.headers["user-agent"] || null
-        if(raw instanceof Array) { return raw[0] || null }
-        else { return raw }
+        return this.header_map.get("user-agent")?.[0] ?? null
     }
+}
 
+function repeatable_entry_to_map (entries: [string, string][]): Map<string, string[]> {
+    const map = new Map<string, string[]>()
+    entries.forEach(entry => {
+        const array = map.get(entry[0]) ?? []
+        array.push(entry[1])
+        map.set(entry[0], array)
+    })
+    return map
 }

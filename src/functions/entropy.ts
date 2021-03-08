@@ -1,7 +1,6 @@
 import { bigint_to_uint8a, uint8a_to_bigint } from "./encoding/bigint-uint8a"
 
 const hexify = ((x : number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
-
 export class Entropy {
 
     private one_way_preservation_counter = 0n
@@ -44,12 +43,12 @@ export class Entropy {
 
         const owpc = this.one_way_preservation_counter_get_and_advance()
         const message_length = this.entropy.length + owpc.length + this.foundation_entropy.length
-        const message_to_digest = new Uint8Array(message_length)
-        message_to_digest.set(this.entropy, 0)
-        message_to_digest.set(owpc, this.entropy.length)
-        message_to_digest.set(this.foundation_entropy, this.entropy.length + owpc.length)
+        const preimage_buffer = new Uint8Array(message_length)
+        preimage_buffer.set(this.entropy, 0)
+        preimage_buffer.set(owpc, this.entropy.length)
+        preimage_buffer.set(this.foundation_entropy, this.entropy.length + owpc.length)
 
-        this.entropy = this.hash_function(message_to_digest)
+        this.entropy = this.hash_function(preimage_buffer)
 
         if(format === "raw")
             { return this.entropy }

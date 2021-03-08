@@ -3,9 +3,9 @@ export const any: any = Symbol()
 /** In your example object, use or(t:T, u:U) to indicate that a field can be of either type T or U. 
  * Be conservative in using or() to build your example shape. Once used, make sure to eliminate access 
  * to the example shape directly, as the example shape is no longer type safe. or() will return an 
- * object that represents the input values, i.e. (or(t,u) instanceof Or) passes runtime, but Typescript 
- * will think (or(t,u): T|U) because this function reports the wrong return type to keep your shape 
- * object's inferred type clean */
+ * object that represents the input values, i.e. assert(or(t,u) instanceof Or) passes runtime, but 
+ * Typescript will think (or(t,u): T|U) because this function reports the wrong return type to keep 
+ * your shape object's inferred type clean */
 export function or<T,U>(t:T,u:U): T|U
 export function or<T,U,V>(t:T,u:U,v:V): T|U|V
 export function or<T,U,V,W>(t:T,u:U,v:V,w:W): T|U|V|W
