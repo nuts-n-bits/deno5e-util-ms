@@ -17,16 +17,16 @@ export class Global_dict {
     public get cumulative_error_count() { return this.err_id }
     public get cumulative_visit_count() { return this.visit_id }
 
-    public readonly error_collection : Map<string, Quick_queue<Error_report>> = new Map()
+    public readonly error_collection: Map<string, Quick_queue<Error_report>> = new Map()
     // used to keep track of currently reported error, to de-duplicate error reporting
-    public readonly current_error_pool : WeakMap<Error, true> = new Map()
-    public readonly error_report_sample : Error_report = [new Date(), new Error(), 0n, 10, false]
+    public readonly current_error_pool: WeakMap<Error, true> = new Map()
+    public readonly error_report_sample: Error_report = [new Date(), new Error(), 0n, 10, false]
 
     // error report has ways to de-duplicate error reports.
     /**
      * @param forced_type Set to a string if you want the error report to show a different class of error than is associated with the error object. If unset defaults to error.constructor.name.
      */
-    public error_report(error : Error, severeness? : Severeness, forced_type? : string) {
+    public error_report(error: Error, severeness?: Severeness, forced_type?: string) {
 
         if(!severeness) severeness = 1000
 
@@ -50,18 +50,18 @@ export class Global_dict {
         }
     }
 
-    public readonly recent_visits : Quick_queue<Visit_record> = new Quick_queue()
+    public readonly recent_visits: Quick_queue<Visit_record> = new Quick_queue()
 
-    public log_visit(recent_visit_object : Visit_record) {
+    public log_visit(recent_visit_object: Visit_record) {
 
         recent_visit_object.id = this.visit_id++
         if(this.recent_visits.size() >= 1200) this.recent_visits.shift()
         this.recent_visits.push(recent_visit_object)
     }
 
-    // public readonly db_query_watch : Quick_queue<string> = new Quick_queue()
+    // public readonly db_query_watch: Quick_queue<string> = new Quick_queue()
 
-    // public query_log(...queries : string[]) {
+    // public query_log(...queries: string[]) {
 
     //     if(this.db_query_watch.size() >= 100) this.db_query_watch.shift()
     //     queries.forEach(query => this.db_query_watch.push(query.substr(400)))

@@ -21,7 +21,7 @@ export class Symbol_registry {
     private readonly _name_namespace_by_id: Map<bigint, [string, string]> = new Map()
     private readonly _id_by_name_namespace: Map<string, Map<string, bigint>> = new Map()
 
-    register(id: bigint, namespace: string, name: string) : this {
+    register(id: bigint, namespace: string, name: string): this {
 
         // Double registration guard (2 if-throw guards)
         if (this._name_namespace_by_id.has(id))
@@ -38,19 +38,19 @@ export class Symbol_registry {
         return this
     }
 
-    look_up(id : bigint) : [string, string] | null
-    look_up(namespace : string, name : string) : bigint | null
-    look_up(arg1 : bigint|string, arg2? : string) {
+    look_up(id: bigint): [string, string] | null
+    look_up(namespace: string, name: string): bigint | null
+    look_up(arg1: bigint|string, arg2?: string) {
         if(typeof arg1 === "bigint") return this.look_up_1(arg1)
         else return this.look_up_2(arg1, arg2!)
     }
 
-    private look_up_1(id : bigint) : [string, string] | null {
+    private look_up_1(id: bigint): [string, string] | null {
 
         return this._name_namespace_by_id.get(id) || null
     }
 
-    private look_up_2(namespace : string, name : string) : bigint | null {
+    private look_up_2(namespace: string, name: string): bigint | null {
 
         const namespace_map = this._id_by_name_namespace.get(namespace)
         if(namespace_map === undefined) return null

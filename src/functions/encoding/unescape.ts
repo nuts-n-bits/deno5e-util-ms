@@ -1,5 +1,5 @@
 
-export function unescape(escaped_string : string) : string {
+export function unescape(escaped_string: string): string {
 
     let new_string = ""
 
@@ -18,7 +18,7 @@ export function unescape(escaped_string : string) : string {
 
 }
 
-function fill_zeros(str : string, fill_to : number) : string {
+function fill_zeros(str: string, fill_to: number): string {
 
     const fill_this_many = fill_to - str.length
 
@@ -28,7 +28,7 @@ function fill_zeros(str : string, fill_to : number) : string {
     return "0".repeat(fill_this_many) + str
 }
 
-export function escape(unescaped_string : string) : string {
+export function escape(unescaped_string: string): string {
 
     // priority mod/keep range
     // 5.       md       0-41
@@ -69,7 +69,7 @@ if(0) {
 
     "this is a test for the unescape polyfill"
 
-    let arr : any[] = []
+    let arr: any[] = []
     for(let i=0; i<10000; i++) arr[i]=i
     arr = arr.map(x => String.fromCodePoint(x))
 

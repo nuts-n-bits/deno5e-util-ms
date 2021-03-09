@@ -1,7 +1,7 @@
-export function uri_correctness_check(uri : string) : boolean {
+export function uri_correctness_check(uri: string): boolean {
 
     try{
-        decodeURI(uri || "")
+        decodeURI(uri)
     }
     catch(e) {
         return false

@@ -1,9 +1,9 @@
 export class Abc <T> {
-    constructor(public readonly v : T) {}
+    constructor(public readonly v: T) {}
 }
 
 export class Wxyz <T, U> {
-    constructor(public readonly discriminator: T, public readonly v : U) {}
+    constructor(public readonly discriminator: T, public readonly v: U) {}
 }
 
 // When a function has multiple distinct return types and they're difficult to differentiate with 

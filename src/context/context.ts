@@ -5,27 +5,29 @@
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
 import { App_finder } from "./find-app"
-import { HttpRequest, HttpResponse } from "./http-interface-type"
+import { HttpRequest, HttpResponse, TcpConnectionAction } from "./http-interface-type"
 
-export { App_finder, HttpRequest, HttpResponse }
+export { App_finder, HttpRequest, HttpResponse, TcpConnectionAction }
 
-export class Context {
+export class Context<BodyStreamType> {
 
     public  readonly time_of_admission      = Date.now()
+    public  readonly url                    : string
     public  readonly pu                     : ParsedUrl
     public  readonly header_map             : Map<string, string[]>
 
     private readonly _identified_cookie     : Identify
     private readonly _remote_address        : string
 
-    constructor (private req: HttpRequest, public readonly routing_rule: App_finder<string|symbol, Function>) {
+    constructor (public request: HttpRequest<BodyStreamType>) {
 
         // parse cookie and client address
-        this.header_map = repeatable_entry_to_map(req.headers)
+        this.header_map = repeatable_entry_to_map(request.headers)
         const first_cookie: string = this.header_map.get("cookie")?.[0] ?? ""  // if client header presents more than one Cookie entry, only care about the first.
         this._identified_cookie = new Identify(";", "=", "").set(first_cookie)
-        this._remote_address = this.header_map.get("x-real-ip")?.[0] || req.tcp.remote_address
-        this.pu = parse_url(req.url)
+        this._remote_address = this.header_map.get("x-real-ip")?.[0] ?? request.tcp.remote_address
+        this.url = request.url
+        this.pu = parse_url(request.url)
     }
 
     cookie (name: string): string|null {
@@ -59,7 +61,7 @@ export class Context {
     }
 
     host (): string|null {  // "www.foo.com:4455"
-        return this.header_map.get("host")?.[0] || null
+        return this.header_map.get("host")?.[0] ?? null
     }
 
     host_length (): number {
@@ -87,7 +89,7 @@ export class Context {
     }
 
     method (): string {
-        return this.req.method
+        return this.request.method
     }
 
     remote_address (): string {

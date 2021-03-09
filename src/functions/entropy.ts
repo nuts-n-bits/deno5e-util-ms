@@ -1,6 +1,6 @@
 import { bigint_to_uint8a, uint8a_to_bigint } from "./encoding/bigint-uint8a"
 
-const hexify = ((x : number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
+const hexify = ((x: number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
 export class Entropy {
 
     private one_way_preservation_counter = 0n

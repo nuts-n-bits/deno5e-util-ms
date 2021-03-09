@@ -1,18 +1,18 @@
 export class Identify {
 
-    private message : string = ""
+    private message: string = ""
 
-    constructor(private left : string, private delim : string, private right : string) {
+    constructor(private left: string, private delim: string, private right: string) {
 
     }
 
-    set (string : string) : this {
+    set (string: string): this {
 
         this.message = string
         return this
     }
 
-    all (key : string) : string[] {
+    all (key: string): string[] {
 
         const array = this.message.split(this.left || this.right).map(fragment => {
             const chamber = fragment.split(this.right || this.left)[0]
@@ -26,7 +26,7 @@ export class Identify {
         return array as string[]
     }
 
-    first (key : string) : string|null {
+    first (key: string): string|null {
         let content = this.all(key)
         if(content.length > 0)
             return content[0]
@@ -34,7 +34,7 @@ export class Identify {
             return null
     }
 
-    last (key : string) : string|null {
+    last (key: string): string|null {
         let content = this.all(key)
         if(content.length > 0)
             return content[content.length - 1]

@@ -123,12 +123,12 @@ function _sanitize_html_inverse(sanitized: string): string {
         .replace(/&amp;/g, "&")
 }
 
-export function nop (...args : any[]) : void {
+export function nop (...args: any[]): void {
 
     return
 }
 
-export function async_sleep(microsecond : number) : Promise<void> {
+export function async_sleep(microsecond: number): Promise<void> {
 
     return new Promise((res) => {
 

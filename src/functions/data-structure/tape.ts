@@ -9,12 +9,12 @@ export class Tape {
     public readonly version = Tape.version
 
     private core_data_holder = new Map<string, string>()
-    private k_queue : Array<string|null> = []
-    private l_queue : Array<bigint> = []
-    public  count : bigint = 0n
-    public  available : bigint
+    private k_queue: Array<string|null> = []
+    private l_queue: Array<bigint> = []
+    public  count: bigint = 0n
+    public  available: bigint
 
-    constructor(private length : bigint) {
+    constructor(private length: bigint) {
 
         this.available = length
     }
@@ -36,12 +36,12 @@ export class Tape {
 
     }
     
-    estimate_item_size(k : string, v : string) : bigint {
+    estimate_item_size(k: string, v: string): bigint {
 
         return BigInt(k.length) * 4n + BigInt(v.length) * 2n + overhead_constant
     }
 
-    resize(new_length : bigint): void {
+    resize(new_length: bigint): void {
 
         const original_length = this.length
         const diff = new_length - original_length
@@ -52,7 +52,7 @@ export class Tape {
         this.drop_excessive()
     }
 
-    record(k : string, v : string) : void {
+    record(k: string, v: string): void {
 
         const est_length = this.estimate_item_size(k, v)
 
@@ -85,7 +85,7 @@ export class Tape {
         this.drop_excessive()
     }
 
-    read(key : string) : string|null {
+    read(key: string): string|null {
 
         const try_get = this.core_data_holder.get(key)
 
@@ -111,12 +111,12 @@ export class Tape {
 
     }
 
-    exist(key : string) : boolean {
+    exist(key: string): boolean {
 
         return this.core_data_holder.has(key)
     }
 
-    delete(key: string) : boolean {
+    delete(key: string): boolean {
 
         if (this.core_data_holder.has(key)) {
 
@@ -140,7 +140,7 @@ export class Tape {
         }
     }
 
-    estimated_remaining_length() : bigint {
+    estimated_remaining_length(): bigint {
 
         return this.length - this.available
     }
