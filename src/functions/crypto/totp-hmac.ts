@@ -4,7 +4,7 @@ import { sha1, block_size_sha1 } from "./sha1"
 // take current UNIX time, integer divide 30, treat it as infinite precision integer, convert to byte array, big-endian.
 // array is 8 bytes long.
 
-function padded_time_byte_array(jst : bigint) : Uint8Array {
+function padded_time_byte_array(jst: bigint): Uint8Array {
 
     const i = jst / 1000n / 30n
     const counter_array = new Uint8Array(8)
@@ -24,7 +24,7 @@ function padded_time_byte_array(jst : bigint) : Uint8Array {
     return new Uint8Array(counter_array)
 }
 
-// function padded_time_byte_array_legacy(jst : number) : Array<number> {
+// function padded_time_byte_array_legacy(jst: number): Array<number> {
 
 //     let counter_text = Math.floor(jst / 1000 / 30).toString(16)
 //     counter_text = counter_text.length % 2 === 0 ? "" : "0" + counter_text
@@ -36,9 +36,9 @@ function padded_time_byte_array(jst : bigint) : Uint8Array {
 //     return counter_array
 // }
 
-function group_string(str : string, num : number) : Array<string> {
+function group_string(str: string, num: number): Array<string> {
 
-    const arr : string[] = []
+    const arr: string[] = []
 
     for(let i=0; i<str.length/num; i++) {
 
@@ -49,7 +49,7 @@ function group_string(str : string, num : number) : Array<string> {
 
 }
 
-function b32_to_c08(base32 : string) : Uint8Array {
+function b32_to_c08(base32: string): Uint8Array {
 
     base32 = base32.toUpperCase()
 
@@ -63,7 +63,7 @@ function b32_to_c08(base32 : string) : Uint8Array {
     base32 += pad[(base32.length % 8)]
 
     const grouped_string_array = group_string(base32, 8)
-    const byte_array : number[] = []
+    const byte_array: number[] = []
 
     for(let i=0; i<grouped_string_array.length; i++) {
 
@@ -80,7 +80,7 @@ function b32_to_c08(base32 : string) : Uint8Array {
     return new Uint8Array(byte_array)
 }
 
-export function totp_hmac_sha1(base32 : string, jst : bigint) : number {
+export function totp_hmac_sha1(base32: string, jst: bigint): number {
 
     const secret_byte_array = b32_to_c08(base32)
     const time_byte_array = padded_time_byte_array(jst)

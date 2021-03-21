@@ -1,5 +1,3 @@
-import { T, U } from "./abc"
-
 export class AssertionTypeOfError extends Error {}
 export class AssertionSameConstructorError extends Error {}
 export class AssertionTruthyError extends Error {}

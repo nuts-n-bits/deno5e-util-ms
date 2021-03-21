@@ -4,8 +4,8 @@
 
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
-import { App_finder } from "./find-app"
-import { HttpRequest, HttpResponse, TcpConnectionAction } from "./http-interface-type"
+import { App_finder } from "./find-app-2020"
+import { HttpRequest, HttpResponse, TcpConnectionAction } from "./compat-http-interface-type"
 
 export { App_finder, HttpRequest, HttpResponse, TcpConnectionAction }
 

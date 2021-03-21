@@ -1,5 +1,5 @@
 // bk for big K
-function bk (index : number) : number {
+function bk (index: number): number {
 
     if(index >= 0 && index <= 19)
         return 0x5a827999
@@ -16,7 +16,7 @@ function bk (index : number) : number {
 // st for state
 const st = new Uint32Array([0x67452301,0xefcdab89,0x98badcfe,0x10325476,0xc3d2e1f0])
 
-function pp (msg : Uint8Array) : Array<Uint32Array> {        // pre pad
+function pp (msg: Uint8Array): Array<Uint32Array> {        // pre pad
 
     // pad
     const bit_l = msg.length*8
@@ -28,7 +28,7 @@ function pp (msg : Uint8Array) : Array<Uint32Array> {        // pre pad
     m.set([((bit_l>>24)>>>0)&255, ((bit_l>>16)>>>0)&255, ((bit_l>>8)>>>0)&255, ((bit_l>>0)>>>0)&255], padded_byte_length-4)
 
     // separate into 64-byte blocks (chunks)
-    const n : Array<Uint8Array> = []
+    const n: Array<Uint8Array> = []
     for(let i=0;i<m.length/64;i++) {
         n[i] = new Uint8Array(64)
         for(let j=0;j<64;j++) {
@@ -37,7 +37,7 @@ function pp (msg : Uint8Array) : Array<Uint32Array> {        // pre pad
     }
 
     // divide 1 block into 16 * 32 bits of messages
-    let p : Array<Uint32Array> = []
+    let p: Array<Uint32Array> = []
     for(let i=0;i<n.length;i++) {
         p[i] = new Uint32Array(16)
         for(let j=0;j<n[i].length/4;j++) {
@@ -47,7 +47,7 @@ function pp (msg : Uint8Array) : Array<Uint32Array> {        // pre pad
     return p
 }
 
-function ms (b : Uint32Array) : Uint32Array {         // message schedule for one message block
+function ms (b: Uint32Array): Uint32Array {         // message schedule for one message block
 
     const w = new Uint32Array(80)
     for(let i=0; i<16; i++) {
@@ -59,10 +59,10 @@ function ms (b : Uint32Array) : Uint32Array {         // message schedule for on
     return w
 }
 
-function cp (s : Uint32Array, w : Uint32Array) : void {        // compress
+function cp (s: Uint32Array, w: Uint32Array): void {        // compress
 
     let a=s[0], b=s[1], c=s[2], d=s[3], e=s[4]
-    for(let t : number, i=0;i<80;i++) {
+    for(let t: number, i=0;i<80;i++) {
         t = pl(lt(a, 5), ft(b, c, d, i), e, bk(i), w[i])
         e = d
         d = c
@@ -73,7 +73,7 @@ function cp (s : Uint32Array, w : Uint32Array) : void {        // compress
     s.set([pl(a,s[0]),pl(b,s[1]),pl(c,s[2]),pl(d,s[3]),pl(e,s[4])])
 }
 
-function ft (x : number, y : number, z : number, t : number) : number {
+function ft (x: number, y: number, z: number, t: number): number {
 
     if(t >= 0 && t <= 19)
         return ch(x, y, z)
@@ -87,39 +87,39 @@ function ft (x : number, y : number, z : number, t : number) : number {
         throw new Error()
 }
 
-function ml (msg : Uint8Array, st : Uint32Array) {    // main loop
+function ml (msg: Uint8Array, st: Uint32Array) {    // main loop
 
     let m = pp(msg)
     for(let i=0;i<m.length;i++) { cp(st, ms(m[i])) }
     return st
 }
 
-function pl (a : number, b : number, c = 0, d = 0, e = 0) : number {  // safe addition
+function pl (a: number, b: number, c = 0, d = 0, e = 0): number {  // safe addition
 
     return (((((((a+b)>>>0)+c)>>>0)+d)>>>0)+e)>>>0
 }
 
-function lt (a : number, b : number) : number {        // left rotate
+function lt (a: number, b: number): number {        // left rotate
 
     return ((a<<b)|(a>>>(32-b)))>>>0
 }
 
-function ch (x : number, y : number, z : number) : number {      // choice
+function ch (x: number, y: number, z: number): number {      // choice
 
     return ((x&y)^((~x)&z))>>>0
 }
 
-function mj (x : number, y : number, z : number) : number {      // majority
+function mj (x: number, y: number, z: number): number {      // majority
 
     return ((x&y)^(x&z)^(y&z))>>>0
 }
 
-function pr (x : number, y : number, z : number) : number {      // parity
+function pr (x: number, y: number, z: number): number {      // parity
 
     return x^y^z
 }
 
-function rg (a : Uint32Array) : Uint8Array {  // Uint32 to Uint8 
+function rg (a: Uint32Array): Uint8Array {  // Uint32 to Uint8 
 
     let b = new Uint8Array(20)
     for(let i=0;i<5;i++) {
@@ -132,7 +132,7 @@ function rg (a : Uint32Array) : Uint8Array {  // Uint32 to Uint8
 }
 
 // msg be a array of byte-sized numbers.
-export function sha1 (msg : Uint8Array) : Uint8Array {
+export function sha1 (msg: Uint8Array): Uint8Array {
 
     return rg(ml(msg, st))
 }

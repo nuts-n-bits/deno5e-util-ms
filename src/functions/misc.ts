@@ -139,12 +139,12 @@ export function async_sleep(microsecond: number): Promise<void> {
 /**
  * Will return "YYYYMMDD"
  * If used with years less than 4 digits, will still return "YYYYMMDD", with 0 padded to the year fields.
- * If used with years with 5 digits or more, will return "YYYYYMMDD" or more digits.
- * Cannot be used with BCE dates (year<0). Throws an Error.
+ * If used with years with 5 digits or more, will return "YYYYMMDD", YYYY = actual year mod 10000.
+ * If used with BCE dates (year<0), throws an Error.
  */
 export function yyyymmdd(date: Date): string {
     if(date.getFullYear() < 0) { throw new Error("Cannot convert BCE dates to YYYYMMDD") }
-    const yr = date.getFullYear().toString()
+    const yr = (date.getFullYear()%10000).toString()
     const mn = (date.getMonth()+1).toString()
     const dy = date.getDate().toString()
     const yrfill = yr.length >= 4 ? "" : "0".repeat(4 - yr.length)
