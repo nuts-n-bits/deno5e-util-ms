@@ -6,6 +6,9 @@ function standard_interval(jobs_enqueued: bigint): number {  // a map from # of 
     else return linear
 }
 
+/**
+ * @deprecated 2021 Pending rewrite TODO
+ */
 export class Deferred_job_queue<F extends Function> {
 
     private core_queue = new Quick_queue<F>()

@@ -31,55 +31,6 @@ export function is_sig (str: string|null): boolean {
     return typeof str === "string" && /^[0-9a-f]{64}$/.test(str)
 }
 
-export class Username_check_result {
-
-    too_long                = false
-    not_in_default_char_set = false
-    leading_white           = false
-    ending_white            = false
-    consecutive_white       = false
-    disallowed_char         = false
-    all_numbers             = false
-
-    pass (): boolean {
-
-        return !this.too_long && !this.not_in_default_char_set && !this.leading_white &&
-            !this.ending_white && !this.consecutive_white && !this.disallowed_char && !this.all_numbers
-    }
-
-    fail (): boolean {
-
-        return !this.pass()
-    }
-}
-
-export function username_check (str: string): Username_check_result {
-
-    const ucr = new Username_check_result()
-
-    ucr.too_long                = str.length > 256;
-    ucr.not_in_default_char_set = !/^[ -~¡-¬®-ʸぁ-ヿ㐀-䶵가-힣、-〼，！？；：（ ）［］【】—一-鿏]+$/.test(str)
-    ucr.leading_white           = /^[\s\n\r\t].*$/.test(str)
-    ucr.ending_white            = /^.*[\s\n\r\t]$/.test(str)
-    ucr.consecutive_white       = /[\s\n\r\t]{2,}/.test(str)
-    ucr.disallowed_char         = /[*=@#%&?:/\\<>]+/.test(str)
-    ucr.all_numbers             = /^[0-9]*$/.test(str)
-
-    return ucr
-}
-
-export function regulate_username(str: string): string {
-
-    const short = str.substr(0, 256);
-    const only_allowed_characters = short.replace(/[^ -~¡-¬®-ʸぁ-ヿ㐀-䶵가-힣、-〼，！？；：（ ）［］【】—一-鿏]/g, "");
-    const no_leading_white = only_allowed_characters.replace(/^[\s\n\r\t]+/, "");
-    const no_ending_white = no_leading_white.replace(/[\s\n\r\t]+$/, "");
-    const no_consecutive_white = no_ending_white.replace(/[\s\n\r\t]{2,}/g, "");
-    const no_disallowed_char = no_consecutive_white.replace(/[*=@#%&?:/\\]+/g, "");
-
-    return no_disallowed_char;
-}
-
 export function nice_looking_background (): string {
 
     let rm043 = random_int(23, 100)
