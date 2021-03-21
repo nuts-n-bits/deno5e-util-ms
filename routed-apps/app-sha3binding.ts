@@ -1,9 +1,7 @@
-import { ServerRequest, Response } from "https://deno.land/std@0.88.0/http/server.ts"
-import { Parsed_url } from "./parse-url.ts"
+import { ParsedUrl, json_shape_is, ServerRequest, Response } from "../dependencies/lib-compat.ts"
 import { sha3_256, sha3_512, sha1_160, sha2_256 } from "../sha3towasm/pkg/sha3towasm.js"
-import { json_shape_is } from "../../lib-nnbc/src/functions/json-shape-is.ts"
 
-export async function app_sha_binding(req: ServerRequest, pu: Parsed_url): Promise<Response> {
+export async function app_sha_binding(req: ServerRequest, pu: ParsedUrl): Promise<Response> {
 
     let hash_function: (preim: Uint8Array) => Uint8Array
     let image: Uint8Array

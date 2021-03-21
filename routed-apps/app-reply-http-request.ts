@@ -1,14 +1,17 @@
-import { ServerRequest, Response } from "https://deno.land/std@0.88.0/http/server.ts"
-import { Parsed_url } from "./parse-url.ts"
+import { ParsedUrl, ServerRequest, Response } from "../dependencies/lib-compat.ts"
 
-export async function app_reply_http_request(req: ServerRequest, pu: Parsed_url): Promise<Response> {
+export async function app_reply_http_request(req: ServerRequest, pu: ParsedUrl): Promise<Response> {
 
     const response_object = {
         parsed_url: pu,
         headers: [...req.headers.entries()],
         content_length: req.contentLength,
         method: req.method,
-        protocol: [req.proto, req.protoMajor, req.protoMinor]
+        protocol: {
+            string: req.proto,
+            major: req.protoMajor,
+            minor: req.protoMinor
+        }
     }
 
     return {
