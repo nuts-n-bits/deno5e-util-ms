@@ -1,3 +1,4 @@
+import { bytesToBase64 } from "./encoding/base64"
 import { bigint_to_uint8a, uint8a_to_bigint } from "./encoding/bigint-uint8a"
 
 const hexify = ((x: number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
@@ -53,11 +54,11 @@ export class Entropy {
         if(format === "raw")
             { return this.entropy }
         else if(format === "b64")
-            { return Buffer.from(this.entropy).toString("base64") }
+            { return bytesToBase64(this.entropy) }
         else if(format === "b64-url") 
-            { return Buffer.from(this.entropy).toString("base64").replace(/\+/g, "-").replace(/\//g, "_") }
+            { return bytesToBase64(this.entropy) .replace(/\+/g, "-").replace(/\//g, "_") }
         else if(format === "b64-url-no-padding") 
-            { return Buffer.from(this.entropy).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/\=/g, "") }
+            { return bytesToBase64(this.entropy) .replace(/\+/g, "-").replace(/\//g, "_").replace(/\=/g, "") }
         else if(format === "bigint")
             { return uint8a_to_bigint(this.entropy) }
         else /* hex */

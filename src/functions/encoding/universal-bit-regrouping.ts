@@ -4,9 +4,9 @@ export function ubr(from_bit_length: number, to_bit_length: number, from_data_ar
     const total_bit_length = from_bit_length * from_data_array.length
     const remainder = total_bit_length % to_bit_length
     if(remainder != 0)
-        throw Error("universal bit regrouping error: data length does not fit after conversion")
+        { throw new Error("universal bit regrouping error: data length does not fit after conversion") }
     if(from_bit_length < 1 || to_bit_length < 1)
-        throw Error("universal bit regrouping error: 0 length cases")
+        { throw new Error("universal bit regrouping error: 0 length cases") }
 
     const length_after_conversion = total_bit_length / to_bit_length
     const to_data_array = Array(length_after_conversion).fill(0)
