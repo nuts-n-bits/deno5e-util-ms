@@ -52,8 +52,10 @@ export function nice_looking_background (): string {
 `.trim()
 }
 
-export function sanitize_html(string: string): string {
+export function sanitize_html(string: string|number|bigint|undefined): string {
 
+    if(typeof string !== "string") { string = String(string) }
+    
     return string
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
