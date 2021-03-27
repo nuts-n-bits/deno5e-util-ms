@@ -16,7 +16,6 @@
     "url": "https://github.com/nuts-n-bits/lib-nnbc/issues"
   },
   "homepage": "https://github.com/nuts-n-bits/lib-nnbc#readme",
-  "devDependencies": {
-    "@types/node": "^12.12.68"
-  }
+  "dependencies": { },
+  "devDependencies": { }
 }
