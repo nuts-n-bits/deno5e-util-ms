@@ -32,6 +32,6 @@ export function ua_important_characteristics(ua_string: string) {
 
     const ua = ua_string.toLowerCase()
     const report: Array<keyof typeof search_space> = []
-    Object.entries(search_space).forEach(([term, bool]) => { if(ua.indexOf(term) >= 0) { report.push(term as keyof typeof search_space) } })
+    Object.entries(search_space).forEach(([term, _bool]) => { if(ua.indexOf(term) >= 0) { report.push(term as keyof typeof search_space) } })
     return report
 }

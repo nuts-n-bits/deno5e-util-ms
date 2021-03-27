@@ -52,9 +52,9 @@ export function nice_looking_background (): string {
 `.trim()
 }
 
-export function sanitize_html(insertee: string|number|bigint|undefined): string {
+export function sanitize_html(string: string): string {
 
-    return String(insertee)
+    return string
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -63,8 +63,7 @@ export function sanitize_html(insertee: string|number|bigint|undefined): string 
 
 }
 
-function _sanitize_html_inverse(sanitized: string): string {
-
+export function sanitize_html_inverse(sanitized: string): string {
 
     return sanitized
         .replace(/&lt;/g, "<")
@@ -74,7 +73,7 @@ function _sanitize_html_inverse(sanitized: string): string {
         .replace(/&amp;/g, "&")
 }
 
-export function nop (...args: any[]): void {
+export function nop (..._args: any[]): void {
 
     return
 }

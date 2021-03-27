@@ -11,7 +11,7 @@ export function bigint_to_uint8a(int: bigint): Uint8Array {
 export function uint8a_to_bigint(arr: Uint8Array): bigint {
     let int = 0n
     let shift = (BigInt(arr.length) - 1n) * 8n
-    arr.forEach((val, index) => {
+    arr.forEach((val, _index) => {
         int |= BigInt(val) << shift
         shift -= 8n
     })

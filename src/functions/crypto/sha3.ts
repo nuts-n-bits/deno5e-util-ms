@@ -1,7 +1,7 @@
 
 class NotImplementedError extends Error {}
 
-export function keccak (padded_byte_array: Uint8Array, output_length: bigint) {
+export function keccak (_padded_byte_array: Uint8Array, _output_length: bigint) {
 
 
     keccak_permutation(new Uint8Array)
@@ -10,9 +10,9 @@ export function keccak (padded_byte_array: Uint8Array, output_length: bigint) {
 
 }
 
-
+// the following 3 exports have no business being exported lol
 // each uint8 in the state is 5 bits.
-const new_state: Uint8Array = new Uint8Array([
+export const _new_state: Uint8Array = new Uint8Array([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -25,7 +25,7 @@ const new_state: Uint8Array = new Uint8Array([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ])
 
-function _kai (uint8: number): number {
+export function _kai (uint8: number): number {
 
     const bit_0 = (uint8 >> 4) & 1
     const bit_1 = (uint8 >> 3) & 1
@@ -48,12 +48,12 @@ function _kai (uint8: number): number {
     return A | B | C | D | E
 }
 
-function kai (uint8: number): number {
+export function kai (uint8: number): number {
 
-    return [0,5,10,11,20,17,22,23,9,12,3,2,13,8,15,14,18,21,24,27,6,1,4,7,26,29,16,19,30,25,28,31][uint8]
+    return [0,5,10,11,20,17,22,23,9,12,3,2,13,8,15,14,18,21,24,27,6,1,4,7,26,29,16,19,30,25,28,31][uint8]!
 }
 
-function keccak_permutation (state: Uint8Array) {
+function keccak_permutation (_state: Uint8Array) {
 
 
     throw new NotImplementedError()

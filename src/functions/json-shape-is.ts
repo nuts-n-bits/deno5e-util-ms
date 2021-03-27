@@ -1,3 +1,4 @@
+import { type_check_never } from "../protocols/assert-passthrough"
 
 export const any: any = Symbol()
 /** In your example object, use or(t:T, u:U) to indicate that a field can be of either type T or U. 
@@ -28,6 +29,17 @@ class Or {
 export function json_shape_is<T>(
     parsed_json_object: any, 
     example_object: T, 
+    allow_extra_fields: "in-test"|"in-neither" = "in-test"
+): parsed_json_object is T {
+
+    return json_shape_is_core(parsed_json_object, example_object, allow_extra_fields)
+}
+
+// disallow external call to set allow_extra_fields to "in-example" or "in-either" because
+// if extra fields are present in example, but not in test, then test IS NOT example. (test !extends example) 
+function json_shape_is_core<T>(
+    parsed_json_object: any, 
+    example_object: T, 
     allow_extra_fields: "in-test"|"in-example"|"in-neither"|"in-either" = "in-test"
 ): parsed_json_object is T {
 
@@ -46,9 +58,16 @@ export function json_shape_is<T>(
             || test_map_allow_extra_in_example[typeof example_object](parsed_json_object, example_object)
     }
     else {
-        const _0: never = allow_extra_fields
-        throw new Error("Parameter allow_extra_fields must be one of the following strings: 'in-test', 'in-example', 'in-neither' or 'in-either'.")
+        type_check_never(allow_extra_fields)
     }
+}
+
+export type TypePredicate<T> = (x: any) => x is T
+export function predicate_json_type_is<T>(
+    example_object: T, 
+    allow_extra_fields: "in-test"|"in-neither" = "in-test"
+): TypePredicate<T> {
+    return ((x: any) => json_shape_is(x, example_object, allow_extra_fields)) as TypePredicate<T>
 }
 
 const test_map_allow_extra_in_test = {
@@ -100,7 +119,7 @@ function c_symbol(test_subject: any, _eg_type: symbol): boolean {
 function c_object(test_subject: any, eg_type: any, allow_extra: "in-test"|"in-example"): boolean {
     if (eg_type instanceof Or) {
         for (const eg_element in eg_type.candidates) {
-            if (json_shape_is(test_subject, eg_element)) { return true }
+            if (json_shape_is_core(test_subject, eg_element)) { return true }
             else { continue }
         }
         return false
@@ -110,7 +129,7 @@ function c_object(test_subject: any, eg_type: any, allow_extra: "in-test"|"in-ex
         if(test_subject instanceof Array) {
             const test_fail_count = test_subject.map(test_element => {
                 for (const eg_element of eg_type) {
-                    if (json_shape_is(test_element, eg_element, allow_extra)) { return true }
+                    if (json_shape_is_core(test_element, eg_element, allow_extra)) { return true }
                     else { continue }
                 }
                 return false
@@ -123,14 +142,14 @@ function c_object(test_subject: any, eg_type: any, allow_extra: "in-test"|"in-ex
     else {
         if(allow_extra === "in-test") {  // every field in example type must appear in test subject, but test obj can have unknown fields ("in-test")
             for(const [k, v] of Object.entries(eg_type)) {
-                if (json_shape_is(test_subject[k], v, allow_extra)) { continue }
+                if (json_shape_is_core(test_subject[k], v, allow_extra)) { continue }
                 else { return false }
             }
             return true
         }
         else {  // every field in test subject must appear in example obj, but example obj can have unknown fields ("in-example")
             for(const [k, v] of Object.entries(test_subject)) {
-                if (json_shape_is(v, eg_type[k], allow_extra)) { continue }
+                if (json_shape_is_core(v, eg_type[k], allow_extra)) { continue }
                 else { return false }
             }
             return true

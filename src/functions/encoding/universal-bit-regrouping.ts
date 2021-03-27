@@ -26,7 +26,7 @@ export function ubr(from_bit_length: number, to_bit_length: number, from_data_ar
         const relevant_to_index   = Math.floor(focus_begin / to_bit_length)
         const to_bit_offset       = to_bit_length - focus_begin % to_bit_length - transfer_length
 
-        const data_transferred = (((from_data_array[relevant_from_index] >>> from_bit_offset) & ((1 << transfer_length) - 1)) << to_bit_offset)
+        const data_transferred = (((from_data_array[relevant_from_index]! >>> from_bit_offset) & ((1 << transfer_length) - 1)) << to_bit_offset)
 
         if(void "testing purposes: ", 0) {
 

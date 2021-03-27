@@ -67,12 +67,12 @@ function b32_to_c08(base32: string): Uint8Array {
 
     for(let i=0; i<grouped_string_array.length; i++) {
 
-        const x = grouped_string_array[i];
-        const a = (charset.indexOf(x[0])<<3 | charset.indexOf(x[1])>>2) & 255
-        const b = (charset.indexOf(x[1])<<6 | charset.indexOf(x[2])<<1 | charset.indexOf(x[3])>>4) & 255
-        const c = (charset.indexOf(x[3])<<4 | charset.indexOf(x[4])>>1) & 255
-        const d = (charset.indexOf(x[4])<<7 | charset.indexOf(x[5])<<2 | charset.indexOf(x[6])>>3) & 255
-        const e = (charset.indexOf(x[6])<<5 | charset.indexOf(x[7])>>0) & 255
+        const x = grouped_string_array[i]!
+        const a = (charset.indexOf(x[0]!)<<3 | charset.indexOf(x[1]!)>>2) & 255
+        const b = (charset.indexOf(x[1]!)<<6 | charset.indexOf(x[2]!)<<1 | charset.indexOf(x[3]!)>>4) & 255
+        const c = (charset.indexOf(x[3]!)<<4 | charset.indexOf(x[4]!)>>1) & 255
+        const d = (charset.indexOf(x[4]!)<<7 | charset.indexOf(x[5]!)<<2 | charset.indexOf(x[6]!)>>3) & 255
+        const e = (charset.indexOf(x[6]!)<<5 | charset.indexOf(x[7]!)>>0) & 255
 
         byte_array.push(a,b,c,d,e)
     }
@@ -89,13 +89,13 @@ export function totp_hmac_sha1(base32: string, jst: bigint): number {
 
     // truncation to take a sha1 hash image and give a 6-digit integer
     // defined by RFC 4226
-    const offset = otp[otp.length - 1] & 15  // 4 lsb of last byte as 'offset'
+    const offset = otp[otp.length - 1]! & 15  // 4 lsb of last byte as 'offset'
 
     // extract bytes numbered from offset to offset+3
-    const a = otp[offset] & 127  // 0-mask msb (RFC 4226 comment: avoid confusion with signed int)
-    const b = otp[offset+1]
-    const c = otp[offset+2]
-    const d = otp[offset+3]
+    const a = otp[offset]! & 127  // 0-mask msb (RFC 4226 comment: avoid confusion with signed int)
+    const b = otp[offset+1]!
+    const c = otp[offset+2]!
+    const d = otp[offset+3]!
 
     // form a 32 bit unsigned integer w/ msb masked
     const result = a << 24 | b << 16 | c << 8 | d

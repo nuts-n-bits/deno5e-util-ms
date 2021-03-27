@@ -6,6 +6,7 @@ import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
 import { AppFinder } from "./find-app-2020"
 import { HttpRequest, HttpResponse, TcpConnectionAction } from "./compat-http-interface-type"
+import { assert_not_undefined } from "../protocols/assert-passthrough"
 
 export { AppFinder, HttpRequest, HttpResponse, TcpConnectionAction }
 
@@ -68,24 +69,26 @@ export class Context<BodyStreamType> {
         return this.host_stem() === null ? 0 : this.host_stem()!.split(".").length
     }
 
-    host_parts(start : number = 0, length : number = 1) : string|null {
-        if(this.host() === null)
-            return null
-
-        let stems = this.host_stem()!.split(".")
+    host_parts(start: number = 0, length: number = 1): string|null {
+        if(this.host() === null) { return null }
+        const host_stem = this.host_stem()
+        if(host_stem === null) { return null }
+        let stems = host_stem.split(".")
         let max = stems.length - 1
         start = max - start
         let end = start - length + 1
         let desired_parts : Array<string> = []
 
-        for(let i=start; i>=0 && i>=end && i<=max; i--)
-            desired_parts.push(stems[i])
+        for(let i=start; i>=0 && i>=end && i<=max; i--) {
+            const stems_i = stems[i]
+            desired_parts.push(assert_not_undefined(stems_i))
+        }
 
         return desired_parts.join(".")
     }
 
     host_stem (): string|null {  // if host is www.foo.com:4455, then host stem is www.foo.com
-        return this.host() === null ? null : this.host()!.split(":")[0]
+        return this.host() === null ? null : this.host()!.split(":")[0] ?? null
     }
 
     method (): string {

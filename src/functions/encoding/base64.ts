@@ -1,5 +1,6 @@
 // Source: https://gist.github.com/enepomnyaschih/54c437997f8202871278d0fdf68148ca
 // Accessed: 2021/03/21 02:12 EDT
+// Added non null assertion to quench strict null checks
 
 /*
 MIT License
@@ -73,7 +74,7 @@ function getBase64Code(charCode: number) {
 	if (charCode >= base64codes.length) {
 		throw new Error("Unable to parse base64 string.");
 	}
-	const code = base64codes[charCode];
+	const code = base64codes[charCode]!;
 	if (code === 255) {
 		throw new Error("Unable to parse base64 string.");
 	}
@@ -83,20 +84,20 @@ function getBase64Code(charCode: number) {
 export function bytesToBase64(bytes: number[] | Uint8Array) {
 	let result = '', i, l = bytes.length;
 	for (i = 2; i < l; i += 3) {
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-		result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
-		result += base64abc[bytes[i] & 0x3F];
+		result += base64abc[bytes[i - 2]! >> 2];
+		result += base64abc[((bytes[i - 2]! & 0x03) << 4) | (bytes[i - 1]! >> 4)];
+		result += base64abc[((bytes[i - 1]! & 0x0F) << 2) | (bytes[i]! >> 6)];
+		result += base64abc[bytes[i]! & 0x3F];
 	}
 	if (i === l + 1) { // 1 octet yet to write
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[(bytes[i - 2] & 0x03) << 4];
+		result += base64abc[bytes[i - 2]! >> 2];
+		result += base64abc[(bytes[i - 2]! & 0x03) << 4];
 		result += "==";
 	}
 	if (i === l) { // 2 octets yet to write
-		result += base64abc[bytes[i - 2] >> 2];
-		result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-		result += base64abc[(bytes[i - 1] & 0x0F) << 2];
+		result += base64abc[bytes[i - 2]! >> 2];
+		result += base64abc[((bytes[i - 2]! & 0x03) << 4) | (bytes[i - 1]! >> 4)];
+		result += base64abc[(bytes[i - 1]! & 0x0F) << 2];
 		result += "=";
 	}
 	return result;

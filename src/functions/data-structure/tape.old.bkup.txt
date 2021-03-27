@@ -122,8 +122,8 @@ export class Tape {
 
             const pos = this.k_queue.indexOf(key)
 
-            const k = this.k_queue[pos]
-            const l = this.l_queue[pos]
+            const k = this.k_queue[pos]!
+            const l = this.l_queue[pos]!
 
             this.k_queue[pos] = placeholder
             this.l_queue[pos] = placeholder_overhead_constant

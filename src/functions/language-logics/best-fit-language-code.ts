@@ -1,3 +1,5 @@
+import { predicate_json_type_is } from "../json-shape-is"
+
 export type Chamber = Map<Language_code, string>
 export type Raw_input = Array<[Language_code, string]>
 export type Language_code = keyof typeof language_code_definition
@@ -62,13 +64,38 @@ export function mlc(requested_codes: string[], chamber: Chamber): string {
     }
 }
 
+const accept_language_parse_result_predicate = predicate_json_type_is({lang_code: "must be string", q_value: 1})
+/**
+ * @param accept_language_header HTTP header "accept-language", e.g. "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5"
+ * @returns e.g. [ 'fr-ch', 'fr', 'en', 'de', '*' ]
+ */
 export function language_list_from_header(accept_language_header: string) {
-
     // "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5"
-    const list = accept_language_header.toLowerCase().split(",").map(x => x.split(";")[0].trim())
-    //[ 'fr-ch', 'fr', 'en', 'de', '*' ]
+    return accept_language_header.toLowerCase().split(",")
+    // [fr-ch] [ fr;q=0.9] [ en;q=0.8] [ de;q=0.7] [ *;q=0.5]
+        .map(x => x.trim())
+    // [fr-ch] [fr;q=0.9] [en;q=0.8] [de;q=0.7] [*;q=0.5]
+        .map(x => x.split(";").map(x => x.trim()))
+    // [[fr-ch]] [[fr][q=0.9]] [[en][q=0.8]] [[de][q=0.7]] [[*][q=0.5]]
+        .map(([lang_code, q_string]) => ({ lang_code: lang_code, q_value: parse_q_value(q_string) }))
+    // [{lang_code: fr-ch, q_value: 1}] .... [{lang_code: *, q_value: 0.5}]
+        .filter(accept_language_parse_result_predicate)
+    // * eliminates pathological case where lang_code === undefined
+}
 
-    return list
+/**
+ * Garbage in, reasonable default out. Expects e.g. "q=0.4207", if found ill-defined, though, will return 1 (high prio accepted language)
+ * @param q e.g. "q=0.4207"
+ */
+function parse_q_value(q: string|undefined): number {  
+    if(q === undefined) { return 1 }
+    // "q=0.4207"
+    const [q_str_lit, q_float_string] = q.split("=")
+    if (q_str_lit !== "q") { return 1 }  // ill-defined
+    if (q_float_string === undefined) { return 1 }  // ill-defined
+    const q_float_val = parseFloat(q_float_string)
+    if (q_float_val > 1 || q_float_val < 0 || isNaN(q_float_val)) { return 1 }  // ill-valued (if out of bounds) or ill-defined (if NaN)
+    return q_float_val
 }
 
 export function complete_chamber(original_chamber: Raw_input): Chamber {

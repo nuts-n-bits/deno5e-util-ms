@@ -24,7 +24,7 @@ export function type_check(...args: any[]): any {
 }
 
 export function type_check_never(value: never): never
-export function type_check_never(value: never): void { return }
+export function type_check_never(_value: never): void { return }
 
 /**
  * Will throw run time assertion error if the incoming value is not what's expected.
@@ -80,7 +80,7 @@ export function assert_not_null_or_undefined<T>(value: T, comment?: string): Non
     else { return value! }
 }
 
-export function assert_never(value: never, comment?: string): never {
+export function assert_never(_value: never, comment?: string): never {
     throw new AssertionNeverError(comment)
 }
 

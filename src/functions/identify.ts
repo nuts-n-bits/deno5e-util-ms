@@ -15,7 +15,7 @@ export class Identify {
     all (key: string): string[] {
 
         const array = this.message.split(this.left || this.right).map(fragment => {
-            const chamber = fragment.split(this.right || this.left)[0]
+            const chamber = fragment.split(this.right || this.left)[0] ?? ""
             const index = chamber.indexOf(this.delim)
             const chamber_key = index === -1 ? chamber : chamber.substr(0, index)
             if(key !== chamber_key) { return null }
@@ -28,18 +28,12 @@ export class Identify {
 
     first (key: string): string|null {
         let content = this.all(key)
-        if(content.length > 0)
-            return content[0]
-        else
-            return null
+        return content[0] ?? null
     }
 
     last (key: string): string|null {
         let content = this.all(key)
-        if(content.length > 0)
-            return content[content.length - 1]
-        else
-            return null
+        return content[content.length - 1] ?? null
     }
 
 }

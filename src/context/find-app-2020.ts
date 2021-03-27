@@ -92,8 +92,8 @@ export class AppFinder<App_id, App_type> {
                 else {
                     // ホストがまだ見つからない場合は RegEx によってホスト名を調整する
                     for (let i = 0; i < this._host_alias_regex.length; i++) {
-                        if (this._host_alias_regex[i][0].test(host)) {
-                            host = this._host_alias_regex[i][1]
+                        if (this._host_alias_regex[i]![0].test(host)) {
+                            host = this._host_alias_regex[i]![1]
                             break
                         }
                     }
@@ -164,13 +164,13 @@ export class AppFinder<App_id, App_type> {
         this._host_app_use_by_regex.set(host, arr)
     }
 
-    private bind_app_3(host: null, app_name: App_id, app: App_type): void {
+    private bind_app_3(_host: null, app_name: App_id, app: App_type): void {
 
         if (this.options.no_overwrite !== false && this._app_use_by_name.has(app_name)) { return this.overwrite_handler() }
         this._app_use_by_name.set(app_name, app)
     }
 
-    private bind_app_4(host: null, app_name: RegExp, app: App_type): void {
+    private bind_app_4(_host: null, app_name: RegExp, app: App_type): void {
 
         this._app_use_by_regex.push([app_name, app])
     }

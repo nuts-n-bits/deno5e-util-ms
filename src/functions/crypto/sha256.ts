@@ -21,7 +21,7 @@ const pp = function(msg: Uint8Array): Array<Uint32Array> {       // pre pad
     for(let i=0;i<m.length/64;i++) {
         n[i] = new Uint8Array(64)
         for(let j=0;j<64;j++) {
-            n[i][j]=m[64*i+j]
+            n[i]![j]=m[64*i+j]!
         }
     }
 
@@ -29,8 +29,8 @@ const pp = function(msg: Uint8Array): Array<Uint32Array> {       // pre pad
     let p: Array<Uint32Array> = []
     for(let i=0;i<n.length;i++) {
         p[i] = new Uint32Array(16)
-        for(let j=0;j<n[i].length/4;j++) {
-            p[i][j]=((n[i][4*j]<<24)|(n[i][4*j+1]<<16)|(n[i][4*j+2]<<8)|(n[i][4*j+3]))
+        for(let j=0;j<n[i]!.length/4;j++) {
+            p[i]![j]=((n[i]![4*j]!<<24)|(n[i]![4*j+1]!<<16)|(n[i]![4*j+2]!<<8)|(n[i]![4*j+3]!))
         }
     }
     return p
@@ -40,17 +40,17 @@ function ms(b: Uint32Array): Uint32Array {         // message schedule for one m
 
     const w = new Uint32Array(64)
     for(let i=0;i<16;i++) {
-        w[i] = b[i]
+        w[i] = b[i]!
     }
     for(let i=16;i<64;i++) {
-        w[i] = pl(s1(w[i-2]),w[i-7],s0(w[i-15]),w[i-16])
+        w[i] = pl(s1(w[i-2]!),w[i-7]!,s0(w[i-15]!),w[i-16])
     }
     return w
 }
 
 function cp (s: Uint32Array, w: Uint32Array): void {       // side-effecty, will change s (state).
 
-    let a=s[0], b=s[1], c=s[2], d=s[3], e=s[4], f=s[5], g=s[6], h=s[7]
+    let a=s[0]!, b=s[1]!, c=s[2]!, d=s[3]!, e=s[4]!, f=s[5]!, g=s[6]!, h=s[7]!
     for(let x: number, y: number, i=0; i<64; i++) {
 
         x = pl(h,S1(e),ch(e,f,g),bk[i],w[i])
@@ -64,13 +64,13 @@ function cp (s: Uint32Array, w: Uint32Array): void {       // side-effecty, will
         b = a
         a = pl(x,y)
     }
-    s.set([pl(a,s[0]),pl(b,s[1]),pl(c,s[2]),pl(d,s[3]),pl(e,s[4]),pl(f,s[5]),pl(g,s[6]),pl(h,s[7])], 0)
+    s.set([pl(a,s[0]!),pl(b,s[1]!),pl(c,s[2]!),pl(d,s[3]!),pl(e,s[4]!),pl(f,s[5]!),pl(g,s[6]!),pl(h,s[7]!)], 0)
 }
 
 function ml (msg: Uint8Array, st: Uint32Array): Uint32Array {   // main loop, side-effecty, changes st.
 
     let m = pp(msg)
-    for(let i=0;i<m.length;i++) { cp(st, ms(m[i])) }
+    for(let i=0;i<m.length;i++) { cp(st, ms(m[i]!)) }
     return st
 }
 
@@ -112,10 +112,10 @@ function rg (a: Uint32Array): Uint8Array {  // Uint32 to Uint8
 
     let b = new Uint8Array(32)
     for(let i=0;i<8;i++) {
-        b[i*4+0] = ((a[i]>>24)>>>0)&255
-        b[i*4+1] = ((a[i]>>16)>>>0)&255
-        b[i*4+2] = ((a[i]>>8)>>>0)&255
-        b[i*4+3] = ((a[i]>>0)>>>0)&255
+        b[i*4+0] = ((a[i]!>>24)>>>0)&255
+        b[i*4+1] = ((a[i]!>>16)>>>0)&255
+        b[i*4+2] = ((a[i]!>>8)>>>0)&255
+        b[i*4+3] = ((a[i]!>>0)>>>0)&255
     }
     return b
 }
