@@ -2,8 +2,6 @@
   "name": "lib-nnbc",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
