@@ -16,7 +16,7 @@ export class SymbolRegistryDoubleNsNameRegistrationError extends Error {}
 * reg.register(152n, "LP1", "Massachusetts Ave") --> * double registration error *
 *
 */
-export class Symbol_registry {
+export class SymbolRegistry {
 
     private readonly _name_namespace_by_id: Map<bigint, [string, string]> = new Map()
     private readonly _id_by_name_namespace: Map<string, Map<string, bigint>> = new Map()

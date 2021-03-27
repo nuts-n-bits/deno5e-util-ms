@@ -1,7 +1,7 @@
 
 export class QuickQueueOutOfBoundsError extends Error {}
 
-export class Quick_queue<T> {
+export class QuickQueue<T> {
 
     private core_data: Map<bigint, T> = new Map()
     private left_bound = 0n
@@ -85,7 +85,7 @@ export class Quick_queue<T> {
 
     entries() {
 
-        return this.core_data.entries
+        return this.core_data.entries()
     }
 }
 

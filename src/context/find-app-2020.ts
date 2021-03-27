@@ -18,7 +18,7 @@
 
 import { type_check_never } from "../protocols/assert-passthrough"
 
-export class App_finder<App_id, App_type> {
+export class AppFinder<App_id, App_type> {
 
     private readonly _app_use_by_name = new Map<App_id, App_type>()
     private readonly _app_use_by_regex: [RegExp, App_type][] = []

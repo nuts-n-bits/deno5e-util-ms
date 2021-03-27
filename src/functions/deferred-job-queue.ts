@@ -1,4 +1,4 @@
-import { Quick_queue } from "./data-structure/quick-queue"
+import { QuickQueue } from "./data-structure/quick-queue"
 
 function standard_interval(jobs_enqueued: bigint): number {  // a map from # of jobs enqueued to interval milliseconds
     const linear = Number(1000n-20n*jobs_enqueued)  // Near idle = interval 1s. 50 jobs = best effort. Linear in between.
@@ -11,7 +11,7 @@ function standard_interval(jobs_enqueued: bigint): number {  // a map from # of 
  */
 export class Deferred_job_queue<F extends Function> {
 
-    private core_queue = new Quick_queue<F>()
+    private core_queue = new QuickQueue<F>()
     private keep_running = true
     private job_pending = false
     public job_interval_calc: (number_of_jobs_enqueued: bigint) => number = standard_interval

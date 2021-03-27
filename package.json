@@ -1,6 +1,6 @@
 {
   "name": "lib-nnbc",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -18,7 +18,6 @@
     "url": "https://github.com/nuts-n-bits/lib-nnbc/issues"
   },
   "homepage": "https://github.com/nuts-n-bits/lib-nnbc#readme",
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^12.12.68"
   }

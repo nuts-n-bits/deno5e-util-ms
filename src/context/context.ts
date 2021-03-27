@@ -4,10 +4,10 @@
 
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
-import { App_finder } from "./find-app-2020"
+import { AppFinder } from "./find-app-2020"
 import { HttpRequest, HttpResponse, TcpConnectionAction } from "./compat-http-interface-type"
 
-export { App_finder, HttpRequest, HttpResponse, TcpConnectionAction }
+export { AppFinder, HttpRequest, HttpResponse, TcpConnectionAction }
 
 export class Context<BodyStreamType> {
 
