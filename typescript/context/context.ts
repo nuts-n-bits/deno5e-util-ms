@@ -2,14 +2,14 @@
 // const Topological Data Analysis = "https://www.youtube.com/?q=Topological+data+analysis"
 // const EEVDF = "earliest eligible virtual deadline first"
 
-import { parse_url, ParsedUrl } from "../functions/parse-url"
-import { Identify } from "../functions/identify"
+import { parse_url, ParsedUrl } from "../functions/parse-url.js"
+import { Identify } from "../functions/identify.js"
 
-import { HttpRequest } from "./http-interface-type"
-import { assert_not_undefined } from "../protocols/assert-passthrough"
+import { HttpRequest } from "./http-interface-type.js"
+import { assert_not_undefined } from "../protocols/assert-passthrough.js"
 
-export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table"
-export { HttpResponse, TcpConnectionAction, HttpRequest } from "./http-interface-type"
+export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table.js"
+export { HttpResponse, TcpConnectionAction, HttpRequest } from "./http-interface-type.js"
 
 export class Context<BodyStreamType> {
 

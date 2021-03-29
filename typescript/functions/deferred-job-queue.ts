@@ -1,4 +1,4 @@
-import { QuickQueue } from "./data-structure/quick-queue"
+import { QuickQueue } from "./data-structure/quick-queue.js"
 
 function standard_interval(jobs_enqueued: bigint): number {  // a map from # of jobs enqueued to interval milliseconds
     const linear = Number(1000n-20n*jobs_enqueued)  // Near idle = interval 1s. 50 jobs = best effort. Linear in between.

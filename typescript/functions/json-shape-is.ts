@@ -1,4 +1,4 @@
-import { type_check_never } from "../protocols/assert-passthrough"
+import { type_check_never } from "../protocols/assert-passthrough.js"
 
 export const any: any = Symbol()
 /** In your example object, use or(t:T, u:U) to indicate that a field can be of either type T or U. 

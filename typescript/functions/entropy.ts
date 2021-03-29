@@ -1,5 +1,5 @@
-import { bytesToBase64 } from "./encoding/base64"
-import { bigint_to_uint8a, uint8a_to_bigint } from "./encoding/bigint-uint8a"
+import { bytesToBase64 } from "./encoding/base64.js"
+import { bigint_to_uint8a, uint8a_to_bigint } from "./encoding/bigint-uint8a.js"
 
 const hexify = ((x: number) => x > 15 ? x.toString(16) : "0" + x.toString(16))
 export class Entropy {

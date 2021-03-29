@@ -1,4 +1,4 @@
-import { predicate_json_type_is } from "../json-shape-is"
+import { predicate_json_type_is } from "../json-shape-is.js"
 
 export type Chamber = Map<Language_code, string>
 export type Raw_input = Array<[Language_code, string]>

@@ -1,5 +1,5 @@
 
-import { ubr } from "./universal-bit-regrouping"
+import { ubr } from "./universal-bit-regrouping.js"
 
 export function hex_to_uint8array (hex: string): Uint8Array {
 
