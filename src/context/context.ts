@@ -4,11 +4,12 @@
 
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
-import { AppFinder } from "./find-app-2020"
-import { HttpRequest, HttpResponse, TcpConnectionAction } from "./compat-http-interface-type"
+
+import { HttpRequest } from "./compat-http-interface-type"
 import { assert_not_undefined } from "../protocols/assert-passthrough"
 
-export { AppFinder, HttpRequest, HttpResponse, TcpConnectionAction }
+export { RoutingTable, DoubleRegistrationError } from "./routing-table"
+export { HttpResponse, TcpConnectionAction, HttpRequest } from "./compat-http-interface-type"
 
 export class Context<BodyStreamType> {
 
