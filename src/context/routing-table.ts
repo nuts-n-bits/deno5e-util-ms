@@ -1,12 +1,24 @@
+class BatchRegistration<T> { constructor(public readonly array: T[]) {} }
 export class DoubleRegistrationError extends Error {}
-
+export function batch_registration<T>(...args: T[]) { return new BatchRegistration(args) }
 export class RoutingTable <TKey, TValue> {
     
     private map = new Map<TKey,RoutingTable<TKey,TValue>>()
 
     constructor(public readonly fallback: TValue) {}
     
-    register(value: TValue, key: TKey, ...rest_key: TKey[]) {
+    register(value: TValue, key: TKey|BatchRegistration<TKey>, ...rest_key: (TKey|BatchRegistration<TKey>)[]) {
+        if(key instanceof BatchRegistration) {
+            for (const one_key of key.array) {
+                this.register(value, one_key, ...rest_key)
+            }
+        }
+        else {
+            this.register_one(value, key, ...rest_key)
+        }
+    }
+
+    register_one(value: TValue, key: TKey, ...rest_key: (TKey|BatchRegistration<TKey>)[]) {
         const rest_key_0 = rest_key[0]
         if(rest_key_0 === undefined) {
             const find_rt = this.map.get(key)

@@ -8,7 +8,7 @@ import { Identify } from "../functions/identify"
 import { HttpRequest } from "./http-interface-type"
 import { assert_not_undefined } from "../protocols/assert-passthrough"
 
-export { RoutingTable, DoubleRegistrationError } from "./routing-table"
+export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table"
 export { HttpResponse, TcpConnectionAction, HttpRequest } from "./http-interface-type"
 
 export class Context<BodyStreamType> {
