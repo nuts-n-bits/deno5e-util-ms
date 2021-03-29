@@ -5,11 +5,11 @@
 import { parse_url, ParsedUrl } from "../functions/parse-url"
 import { Identify } from "../functions/identify"
 
-import { HttpRequest } from "./compat-http-interface-type"
+import { HttpRequest } from "./http-interface-type"
 import { assert_not_undefined } from "../protocols/assert-passthrough"
 
 export { RoutingTable, DoubleRegistrationError } from "./routing-table"
-export { HttpResponse, TcpConnectionAction, HttpRequest } from "./compat-http-interface-type"
+export { HttpResponse, TcpConnectionAction, HttpRequest } from "./http-interface-type"
 
 export class Context<BodyStreamType> {
 
