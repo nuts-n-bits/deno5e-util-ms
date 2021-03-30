@@ -1,4 +1,4 @@
-import { assert_never } from "../protocols/assert-passthrough.js"
+import { assert_never } from "../protocols/assert-passthrough"
 
 export function serialize(map: Map<string, string>): string {
     const jsonObj: {[i:string]:string} = {}

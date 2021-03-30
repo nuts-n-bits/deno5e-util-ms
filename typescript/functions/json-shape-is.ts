@@ -1,4 +1,4 @@
-import { type_check_never } from "../protocols/assert-passthrough.js"
+//import { type_check_never } from "../protocols/assert-passthrough"
 
 export const any: any = Symbol()
 /** In your example object, use or(t:T, u:U) to indicate that a field can be of either type T or U. 
@@ -58,7 +58,9 @@ function json_shape_is_core<T>(
             || test_map_allow_extra_in_example[typeof example_object](parsed_json_object, example_object)
     }
     else {
-        type_check_never(allow_extra_fields)
+        //type_check_never(allow_extra_fields)
+        const _x: never = allow_extra_fields
+        return _x
     }
 }
 

@@ -1,5 +1,5 @@
-import { hmac } from "./hmac.js"
-import { sha1, block_size_sha1 } from "./sha1.js"
+import { hmac } from "./hmac"
+import { sha1, block_size_sha1 } from "./sha1"
 
 // take current UNIX time, integer divide 30, treat it as infinite precision integer, convert to byte array, big-endian.
 // array is 8 bytes long.
