@@ -1,0 +1,1 @@
+deno run -A build-script.ts ./typescript ./typescript-node

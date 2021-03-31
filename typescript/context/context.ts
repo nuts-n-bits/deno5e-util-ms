@@ -2,14 +2,15 @@
 // const Topological Data Analysis = "https://www.youtube.com/?q=Topological+data+analysis"
 // const EEVDF = "earliest eligible virtual deadline first"
 
-import { parse_url, ParsedUrl } from "../functions/parse-url"
-import { Identify } from "../functions/identify"
+import { parse_url, ParsedUrl } from "../functions/parse-url.ts"
+import { Identify } from "../functions/identify.ts"
 
-import { HttpRequest } from "./http-interface-type"
-import { assert_not_undefined } from "../protocols/assert-passthrough"
+import { HttpRequest } from "./http-interface-type.ts"
+import { assert_not_undefined } from "../protocols/assert-passthrough.ts"
 
-export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table"
-export { TcpConnectionAction, HttpResponse, HttpRequest } from "./http-interface-type"
+export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table.ts"
+export { TcpConnectionAction } from "./http-interface-type.ts"
+export type { HttpResponse, HttpRequest } from "./http-interface-type.ts"
 export class Context<BodyStreamType> {
 
     public  readonly time_of_admission      = Date.now()
