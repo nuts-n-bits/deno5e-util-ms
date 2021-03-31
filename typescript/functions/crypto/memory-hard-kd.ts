@@ -1,4 +1,4 @@
-import { async_sleep } from "../misc"
+import { async_sleep } from "../misc.ts"
 
 // the hash function should have > 32 bits image size
 export async function memory_hard_key_derivation(preimage: Uint8Array, hash_function: (x: Uint8Array) => Uint8Array, memory_factor: number, rest_factor: number): Promise<Uint8Array> {

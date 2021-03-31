@@ -1,4 +1,4 @@
-import { sanitize_html } from "../functions/misc"
+import { sanitize_html } from "../functions/misc.ts"
 
 export function bottom_trap_html (error_code: string|null, diag_string: string|null, input_sanitizer = sanitize_html) {
     
