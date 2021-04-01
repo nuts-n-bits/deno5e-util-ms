@@ -1,6 +1,6 @@
 class BatchRegistration<T> { constructor(public readonly array: T[]) {} }
 export class DoubleRegistrationError extends Error {}
-export function batch_registration<T>(...args: T[]) { return new BatchRegistration(args) }
+export function batch_registration_helper<T>(...args: T[]) { return new BatchRegistration(args) }
 export class RoutingTable <TKey, TValue> {
     
     private map = new Map<TKey,RoutingTable<TKey,TValue>>()

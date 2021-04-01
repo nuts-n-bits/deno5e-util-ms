@@ -1,22 +1,9 @@
 class UnexpectedConditionError extends Error {}
+export interface TransformCoreIf {
+    transform_file: (file: Uint8Array, path: string) => Promise<Uint8Array>
+}
 
 block_scope: {
-    interface TransformCoreIf {
-        transform_file: (file: Uint8Array, path: string) => Promise<Uint8Array>
-    }
-
-    class TransformCore implements TransformCoreIf {
-        async transform_file (file: Uint8Array, path: string) {
-            const ridiculous = "$$$@@!!$~"
-            const text = new TextDecoder().decode(file)
-            const new_text = text.split("\n").map(line => {
-                if(line.includes(` from "`) && (line+ridiculous).includes(`.ts"`+ridiculous)) 
-                    { return (line+ridiculous).replace(`.ts"`+ridiculous, `"`) }
-                return line
-            }).join("\n")
-            return new TextEncoder().encode(new_text)
-        }
-    }
 
     await main()
 
@@ -48,7 +35,14 @@ block_scope: {
             const infile = await Deno.readFile(path)
             const instat = await Deno.stat(path)
             if (instat.ino) { touched_files_inode.set(instat.ino, true) }
-            const outfile = await passdown.trans_core.transform_file(infile, path)
+            let outfile
+            try {
+                outfile = await passdown.trans_core.transform_file(infile, path)
+            }
+            catch (e) {
+                console.log("Custom script error", e)
+            }
+            if(!(outfile instanceof Uint8Array)) { return console.log("Custom transformer bad!") }
             const newpathsegs = [...pathsegs]
             console.log("from", pathsegs)
             newpathsegs[0] = passdown.target_path 
@@ -87,15 +81,16 @@ block_scope: {
 
     async function main() {
         try {
-
-            const source_path = Deno.args[0]
-            const target_path = Deno.args[1]
+            const import_path = Deno.args[0]
+            const source_path = Deno.args[1]
+            const target_path = Deno.args[2]
     
-            if(source_path && target_path && source_path[0] !== "-") {
+            if(import_path && source_path && target_path && import_path[0] !== "-") {
+                console.log("import file:", import_path)
                 console.log("source directory:", source_path)
                 console.log("target directory:", target_path)
                 if (source_path === target_path) { console.log("Because the source and target is the same, it would overwrite! Abort."); Deno.exit() }
-                const trans_core = new TransformCore()
+                const trans_core = (await import(import_path)).default() as TransformCoreIf
                 await recursive_load([source_path], {trans_core, target_path})
             }
             else {
@@ -104,11 +99,13 @@ block_scope: {
                     console.log("0.1.0") 
                 }
                 else {
-                    console.log("What this does is that, you use it like this: deno run -A build-script.ts <FROM> <TO>")
+                    console.log("What this does is that, you use it like this: deno run -A build-script.ts <YOUR-SUPPLIED.TS> <FROM> <TO>")
                     console.log("This will process everything in the <FROM> folder and write them to the <TO> folder, overwriting existing files.")
-                    console.log("The transformation applied to those files are defined by YOU, dear user, because you can edit this file's")
-                    console.log("transform_core_def function to do whatevs you want!")
-                    console.log("Doesn't follow symlink ...as of yet!")
+                    console.log("The transformation applied to those files are defined by YOU, dear user, in the <YOUR-SUPPLIED.TS>")
+                    console.log("To write <YOUR-SUPPLIED.TS>, create a ts file, import interface [TransformCoreIf], write a function that returns an object")
+                    console.log("conforming to the interface, then DEFAULT EXPORT the function. The interface will ask you to write a function that accepts")
+                    console.log("a bin and returns a Promise<Uint8A>, that function will be called every file with file contents as input. Do the work there.")
+                    console.log("This script doesn't follow symlink ...as of yet!")
                 }
             }
         }

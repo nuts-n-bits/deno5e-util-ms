@@ -8,9 +8,6 @@ import { Identify } from "../functions/identify.ts"
 import { HttpRequest } from "./http-interface-type.ts"
 import { assert_not_undefined } from "../protocols/assert-passthrough.ts"
 
-export { RoutingTable, DoubleRegistrationError, batch_registration } from "./routing-table.ts"
-export { TcpConnectionAction } from "./http-interface-type.ts"
-export type { HttpResponse, HttpRequest } from "./http-interface-type.ts"
 export class Context<BodyStreamType> {
 
     public  readonly time_of_admission      = Date.now()
