@@ -11,6 +11,7 @@ export function bottom_trap_html (error_code: string|null, diag_string: string|n
 <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width" />
 <title>Error</title>
 <style>
+*        { box-sizing: border-box; }
 body     { margin: 0; }
 body>*   { font: 10pt "Open Sans", system-ui, sans-serif; max-width: 700px; color: rgba(0,0,0,0.6); }
 h3       { font-size: 114%; font-weight: bold; margin: 2em 0 0.75em 0; }
@@ -19,7 +20,8 @@ a        { color: rgba(0,0,0,0.7); }
 p        { margin: 0 0 0.5em 0; }
 p.link   { display: none; }
 .grid    { display: grid; }
-.diag    { background: rgba(0,0,0,0.04); border-radius: 0.3em; padding: 1em; white-space: pre-wrap;  }
+.diag    { background: rgba(0,0,0,0.04); border-radius: 0.3em; padding: 1em; white-space: pre-wrap; }
+.mono    { font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace; }
 .shuffle { position: absolute; opacity: 0; transition: opacity 0.2s; animation: shuffle_4_in_40 40s ease infinite; }
 .i18n-title-container
          { position: relative; height: 4.6em; }

@@ -1,0 +1,8 @@
+texts
+.vscode
+typescript
+typescript-node
+build-*.ts
+build.sh
+*.tgz
+tsconfig.json
