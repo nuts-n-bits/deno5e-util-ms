@@ -1,8 +1,8 @@
-type Header_theme = "light" | "dark" | "transparent_on_light" | "transparent_on_dark"
-type Footer_theme = Header_theme
-type Nav_bar_link = {text: string, href: string}
+type HeaderTheme = "light" | "dark" | "transparent_on_light" | "transparent_on_dark"
+type FooterTheme = HeaderTheme
+type NavBarLink = {text: string, href: string}
 
-export class Wrapper_options {
+export class WrapperOptions {
 
     public css_commons_enable           : boolean                 = true
     public css_aesthetics_enable        : boolean                 = true
@@ -10,15 +10,15 @@ export class Wrapper_options {
     public footer_bottom_text           : Array<string>           = []
     public footer_flex                  : boolean                 = true
     public footer_margin                : boolean                 = true
-    public footer_theme                 : Footer_theme            = "light"
-    public header_theme                 : Header_theme            = "light"
+    public footer_theme                 : FooterTheme            = "light"
+    public header_theme                 : HeaderTheme            = "light"
     public header_ver_lim               : boolean                 = true
     public html_lang_attr               : string                  = ""
     public icon_alt                     : string                  = ""
     public icon_source                  : string|null             = null
     public icon_style                   : {[index:string]:string} = {height: "47px", width: "47px"}
     public meta_description             : Array<string>           = []
-    public nav_bar_links                : Array<Nav_bar_link>     = []
+    public nav_bar_links                : Array<NavBarLink>     = []
     public nav_hold                     : boolean                 = true
     public nav_margin                   : boolean                 = true
     public title_segments               : Array<string>           = []
