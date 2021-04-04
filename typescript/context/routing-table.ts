@@ -7,7 +7,7 @@ export class RoutingTable <TKey, TValue> {
 
     constructor(public readonly fallback: TValue) {}
     
-    register(value: TValue, key: TKey|BatchRegistration<TKey>, ...rest_key: (TKey|BatchRegistration<TKey>)[]) {
+    register(value: TValue, key: TKey|BatchRegistration<TKey>, ...rest_key: readonly (TKey|BatchRegistration<TKey>)[]) {
         if(key instanceof BatchRegistration) {
             for (const one_key of key.array) {
                 this.register(value, one_key, ...rest_key)
@@ -18,7 +18,7 @@ export class RoutingTable <TKey, TValue> {
         }
     }
 
-    register_one(value: TValue, key: TKey, ...rest_key: (TKey|BatchRegistration<TKey>)[]) {
+    register_one(value: TValue, key: TKey, ...rest_key: readonly (TKey|BatchRegistration<TKey>)[]) {
         const rest_key_0 = rest_key[0]
         if(rest_key_0 === undefined) {
             const find_rt = this.map.get(key)
@@ -36,7 +36,7 @@ export class RoutingTable <TKey, TValue> {
         }
     }
 
-    lookup(keys: TKey[], start=0): {val: TValue, depth: number, unmatched: number, keys_used: number, continue: RoutingTable<TKey, TValue> } {
+    lookup(keys: readonly TKey[], start=0): {val: TValue, depth: number, unmatched: number, keys_used: number, continue: RoutingTable<TKey, TValue> } {
         const key_start = keys[start]
         if (key_start !== undefined) {
             const next_map = this.map.get(key_start)

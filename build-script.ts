@@ -91,6 +91,7 @@ block_scope: {
                 console.log("target directory:", target_path)
                 if (source_path === target_path) { console.log("Because the source and target is the same, it would overwrite! Abort."); Deno.exit() }
                 const trans_core = (await import(import_path)).default() as TransformCoreIf
+                if (typeof trans_core.transform_file !== "function") { return console.log("The supplied script does not seem to conform to the interface") }
                 await recursive_load([source_path], {trans_core, target_path})
             }
             else {
@@ -104,7 +105,7 @@ block_scope: {
                     console.log("The transformation applied to those files are defined by YOU, dear user, in the <YOUR-SUPPLIED.TS>")
                     console.log("To write <YOUR-SUPPLIED.TS>, create a ts file, import interface [TransformCoreIf], write a function that returns an object")
                     console.log("conforming to the interface, then DEFAULT EXPORT the function. The interface will ask you to write a function that accepts")
-                    console.log("a bin and returns a Promise<Uint8A>, that function will be called every file with file contents as input. Do the work there.")
+                    console.log("a bin and returns a Promise<bin>, that function will be called every file with file contents as input. Do the work there.")
                     console.log("This script doesn't follow symlink ...as of yet!")
                 }
             }
