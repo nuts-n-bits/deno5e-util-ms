@@ -104,3 +104,28 @@ export function yyyymmdd(date: Date): string {
     const dyfill = "0".repeat(2 - dy.length)
     return yrfill + yr + mnfill + mn + dyfill + dy
 }
+
+export class ObjectUniqueId <T extends Object = Object> {
+    private counter = 0n
+    private wm = new WeakMap<T, bigint>()
+    get(obj: T): bigint {
+        const try_1 = this.wm.get(obj)
+        if (try_1 !== undefined) { return try_1 }
+        const id = this.counter++
+        this.wm.set(obj, id)
+        return id
+    }
+    gets(obj: T): string {
+        return this.get(obj).toString()
+    }
+}
+
+export function no_throw<T>(exe: () => T): T|Error {
+    try {
+        return exe()
+    }
+    catch(e) {
+        if(e instanceof Error) { return e }
+        else { return new Error() }
+    }
+}

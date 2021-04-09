@@ -1,10 +1,9 @@
 import { predicate_json_type_is } from "../json-shape-is.ts"
 
-export type Chamber = Map<Language_code, string>
-export type Raw_input = Array<[Language_code, string]>
-export type Language_code = keyof typeof language_code_definition
+export type Chamber<T> = Map<LanguageCode, T>
+export type LanguageCode = keyof typeof languageCodeDefinition
 
-const language_code_definition = {
+const languageCodeDefinition = {
     "ar": true, "ar-eg": true, "ar-sa": true,
     "de": true, "de-at": true, "de-ch": true, "de-de": true, "de-li": true,
     "en": true, "en-au": true, "en-ca": true, "en-hk": true, "en-nz": true, "en-sg": true, "en-us": true, "en-uk": true,
@@ -22,13 +21,17 @@ const language_code_definition = {
     "zh": true, "zh-cn": true, "zh-hk": true, "zh-mo": true, "zh-sg": true, "zh-tw": true,
 }
 
-export function concrete_check_string_is_language_code(string: string|null|undefined): Language_code | null {
+export function concrete_check_string_is_language_code(string: string|null|undefined): LanguageCode | null {
     if (string === null || string === undefined) { return null }
-    else if (language_code_definition[string as Language_code]) { return string as Language_code }
+    else if (languageCodeDefinition[string as LanguageCode]) { return string as LanguageCode }
     else { return null }
 }
 
-export function best_fit_chamber_content(requested_codes: Language_code[], chamber: Chamber): string | null {
+/**
+ * @returns will return an entry from chamber that is acceptable as indicated in requested_codes. 
+ *      If nothing matches, will return null even if chamber is not empty.
+ */
+export function best_fit_chamber_content<T>(requested_codes: LanguageCode[], chamber: Chamber<T>): T | null {
 
     for (const code of requested_codes) {
         const try_1 = chamber.get(code)
@@ -42,9 +45,18 @@ export function best_fit_chamber_content(requested_codes: Language_code[], chamb
     return null
 }
 
-export function mlc(requested_codes: string[], chamber: Chamber): string {
+/**
+ * A more lenient version of best_fit_chamber_content. Will return an acceptable chamber entry if possible. If not, will try
+ *  1) chamber.get("en-us")
+ *  2) chamber.get("en")
+ * @param requested_codes LanguageCode[] that is acceptable
+ * @param chamber is just a map of string, string. specifically, Map<LanguageCode, string>
+ * @param fallback if the map is empty, what would be the fallback string to return
+ * @returns 
+ */
+export function mlc<T>(requested_codes: string[], chamber: Chamber<T>, fallback: T): T {
 
-    const filtered_codes = requested_codes.filter(candidate => concrete_check_string_is_language_code(candidate) !== null) as Language_code[]
+    const filtered_codes = requested_codes.filter(candidate => concrete_check_string_is_language_code(candidate) !== null) as LanguageCode[]
     // if the chamber contains (one of) the language results in requested codes from accept-language header, return that result (preferred outcome)
     const try_1 = best_fit_chamber_content(filtered_codes, chamber)
     if (try_1 !== null) { return try_1 }
@@ -56,10 +68,12 @@ export function mlc(requested_codes: string[], chamber: Chamber): string {
         if (try_3 !== undefined) { return try_3 }
         else { 
             // if neither en nor en-us exist, use whatever code available in the chamber.
-            const try_4 = [...chamber.entries()][0]
-            if (try_4 !== undefined) { return try_4[1] }
-            // if there is no code in that chamber (which would be pretty weird), return "--"
-            else { return "--" }
+            const try_4 = chamber.entries().next()
+            if(!try_4.done) {
+                return try_4.value[1]
+            }
+            // if there is no code in that chamber (which would be pretty weird), return fallback string
+            else { return fallback }
         }
     }
 }
@@ -98,16 +112,28 @@ function parse_q_value(q: string|undefined): number {
     return q_float_val
 }
 
-export function complete_chamber(original_chamber: Raw_input): Chamber {
+export function complete_chamber<T>(original_chamber: Array<[LanguageCode, T]>): Chamber<T> {
 
-    const cc: Chamber = new Map()
+    const cc: Chamber<T> = new Map()
 
-    for (let [k, v] of original_chamber) {
+    for (const [k, v] of original_chamber) {
         const partial = concrete_check_string_is_language_code(k.split("-")[0])
         if (partial !== null && cc.get(partial) === undefined) { cc.set(partial, v) }
         cc.set(k, v)
     }
-
     return cc
+}
 
+export function complete_chamber_dyn<T>(original_chamber: Array<[string, T]>): Chamber<T> {
+
+    const cc: Chamber<T> = new Map()
+
+    for (const [prek, v] of original_chamber) {
+        const k = concrete_check_string_is_language_code(prek)
+        if(k === null) { continue }
+        const partial = concrete_check_string_is_language_code(k.split("-")[0])
+        if (partial !== null && cc.get(partial) === undefined) { cc.set(partial, v) }
+        cc.set(k, v)
+    }
+    return cc
 }
