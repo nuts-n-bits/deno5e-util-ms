@@ -124,11 +124,12 @@ export function complete_chamber<T>(original_chamber: Array<[LanguageCode, T]>):
     return cc
 }
 
-export function complete_chamber_dyn<T>(original_chamber: Array<[string, T]>): Chamber<T> {
+export function complete_chamber_dyn(original_chamber: string[][]): Chamber<string> {
 
-    const cc: Chamber<T> = new Map()
+    const cc: Chamber<string> = new Map()
 
     for (const [prek, v] of original_chamber) {
+        if(typeof v !== "string") { continue }
         const k = concrete_check_string_is_language_code(prek)
         if(k === null) { continue }
         const partial = concrete_check_string_is_language_code(k.split("-")[0])
