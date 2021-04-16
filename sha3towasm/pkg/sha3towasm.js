@@ -93,21 +93,15 @@ const sha1_160 = function(input) {
 };
 export { sha1_160 };
 
-import * as path from 'https://deno.land/std/path/mod.ts';
 import WASI from 'https://deno.land/std/wasi/snapshot_preview1.ts';
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const wasi = new WASI({
     args: Deno.args,
     env: Deno.env.toObject(),
-    preopens: {
-        '/': __dirname
-    }
 });
 imports = { wasi_snapshot_preview1: wasi.exports };
 
-const p = path.join(__dirname, 'sha3towasm_bg.wasm');
-const bytes = Deno.readFileSync(p);
-const wasmModule = new WebAssembly.Module(bytes);
+import { wasmprogram } from "./wasm.js"
+const wasmModule = new WebAssembly.Module(new Uint8Array(wasmprogram));
 const wasmInstance = new WebAssembly.Instance(wasmModule, imports);
 wasm = wasmInstance.exports;
 

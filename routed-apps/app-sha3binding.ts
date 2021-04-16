@@ -1,4 +1,4 @@
-import { ParsedUrl, json_shape_is, ServerRequest, Response } from "../dependencies/lib-compat.ts"
+import { ParsedUrl, json_shape_is, ServerRequest, Response, no_throw } from "../dependencies/lib-compat.ts"
 import { sha3_256, sha3_512, sha1_160, sha2_256 } from "../sha3towasm/pkg/sha3towasm.js"
 
 export async function app_sha_binding(req: ServerRequest, pu: ParsedUrl): Promise<Response> {
@@ -30,7 +30,8 @@ export async function app_sha_binding(req: ServerRequest, pu: ParsedUrl): Promis
         image = hash_function(new TextEncoder().encode(preimage_utf8))
     }
     else if(preimage_json !== undefined && preimage_utf8 === undefined) {
-        const parsed_json = JSON.parse(preimage_json)
+        const parsed_json = no_throw(() => JSON.parse(preimage_json))
+        if(parsed_json instanceof Error) { return { status: 400, body: "HTTP 400, bad JSON syntax caused JSON parse error" } }
         if(!json_shape_is(parsed_json, [0])) { return { status: 400, body: "HTTP 400, bad json shape from &preimage-json query param" } }
         image = hash_function(new Uint8Array(parsed_json))
     }

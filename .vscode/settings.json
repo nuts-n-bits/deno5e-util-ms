@@ -1,5 +1,14 @@
 {
+    "deno": {
+        "suggest": {
+          "imports": {
+            "hosts": {
+              "https://deno.land": true
+            }
+          }
+        }
+    },
     "deno.enable": true,
     "deno.lint": false,
-    "deno.unstable": true
+    "deno.unstable": true,
 }

@@ -1,0 +1,1 @@
+deno bundle --unstable main.ts deno5e-util-ms.js

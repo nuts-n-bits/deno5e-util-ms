@@ -5,11 +5,11 @@ import { app_ack } from "./routed-apps/app-ack.ts"
 import { app_reply_http_request } from "./routed-apps/app-reply-http-request.ts"
 const common_name_header = ["X-Endpoint-Common-Name", "deno5e-util-ms"]
 
-const server = serve({ hostname: "0.0.0.0", port: 9100 })
+const server = serve({ hostname: "127.0.0.1", port: 9100 })
 console.log(`http server deno5e-util-ms is running. Come at http://localhost:9100/`)
 async function register() {
     try {
-        const res = await fetch(`http://localhost:9999/register?protocol=http&common-name=${common_name_header[1]}&host=localhost:9100`)
+        const res = await fetch(`http://localhost:9999/register?protocol=http&common-name=${common_name_header[1]}&host-port=9100&host-ip=infer!!`)
         if(res.status !== 200) { throw new Error("Discovery server not accepting registration!!!") } 
     }
     catch (e) {
