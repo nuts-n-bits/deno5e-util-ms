@@ -10,22 +10,35 @@
     TypedPayload
         = Bytes<length=4>               if WireType = fix32    (=== 5 === 101) payload = Bytes<length=4> 
         = Bytes<length=8>               if WireType = fix64    (=== 1 === 001) payload = Bytes<length=8>
-        = VarInt                        if WireType = var      (=== 0 === 000) payload = VarInt         // Differs from Google: bigint > 64 bit can be represented
-        = VarInt                        if WireType = negvar   (=== 6 === 110) payload = VarInt * (-1)  // Differs from Google: negative varint has own wire type
+        = VarInt                        if WireType = var      (=== 0 === 000) payload = VarInt          // Differs from Google: bigint > 64 bit can be represented
+        = VarInt                        if WireType = negvar   (=== 6 === 110) payload = VarInt * (-1)   // Differs from Google: negative varint has own wire type
         = VarInt(x) | Bytes<length=x>   if WireType = lendelim (=== 2 === 010) payload = Bytes<length=x>
     
 */
-function check_never(n: never): never { return undefined as never }
+function check_never(n: never): never { return n }
 
-function ui8a_concat(ui8as: readonly Uint8Array[], length?: number) {
-    const total_length = length ?? ui8as.map(ui8a=>ui8a.length).reduce((a,b)=>a+b, 0)
-    const result = new Uint8Array(total_length)
-    let bytes_written = 0
-    ui8as.forEach(ui8a => {
-        result.set(ui8a, bytes_written)
-        bytes_written += ui8a.length
-    })
-    return result
+namespace Ui8aUtil {
+
+    export function concat(ui8aa: readonly Uint8Array[], length?: number) {
+        const total_length = length ?? total_len(ui8aa)
+        const result = new Uint8Array(total_length)
+        let bytes_written = 0
+        ui8aa.forEach(ui8a => {
+            result.set(ui8a, bytes_written)
+            bytes_written += ui8a.length
+        })
+        return result
+    }
+    
+    export function collect(ui8ai: Iterable<Uint8Array>): Uint8Array[] {
+        const collected_chunks: Uint8Array[] = []
+        for (const chunk of ui8ai) { collected_chunks.push(chunk) }
+        return collected_chunks
+    }
+    
+    export function total_len(ui8aa: readonly Uint8Array[]) {
+        return ui8aa.reduce((a,b)=>a+b.length, 0)
+    }
 }
 
 namespace NumberCodec {
@@ -56,11 +69,12 @@ namespace NumberCodec {
     export function positive_bigint_to_varint(bigint: bigint): Uint8Array {
         if (bigint < 0n) { throw new Error("Unexpected negative bigint") } 
         const array: number[] = []
-        while(bigint !== 0n) {
+        while(true) {
             const lsb7 = Number(bigint & 0b0111_1111n)
             bigint = bigint >> 7n
             const msb1 = (bigint === 0n ? 0 : 1) << 7
             array.push(msb1|lsb7)
+            if (bigint === 0n) { break }
         }
         return new Uint8Array(array)
     }
@@ -73,16 +87,10 @@ namespace NumberCodec {
 export namespace FrameCodec {
 
     const wire_type = {
-        lendelim: 0n,
-        var: 1n,
-        negvar: 2n,
-        fix32: 3n,
-        fix64: 4n,
-    }
-
-    export class Fixed32 {
-        value: Uint8Array
-        constructor(val: Uint8Array) { this.value = new Uint8Array([val[0], val[1], val[2], val[3]]) }
+        lendelim: 0b000n,
+        var: 0b001n,
+        negvar: 0b010n,
+        fix64: 0b011n,
     }
 
     export class Fixed64 {
@@ -90,58 +98,85 @@ export namespace FrameCodec {
         constructor(val: Uint8Array) { this.value = new Uint8Array([val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]]) }
     }
 
-    export type TSerializerWillAccept =  Fixed64 | Fixed32 | Uint8Array | bigint 
+    export type TSerializerWillAccept =  Fixed64 | Uint8Array | bigint | Frame[]
 
-    export class Frame { 
+    export class Frame {
 
+        /**
+         * @param field_number if bigint => will serialize with frame key. if null => will serialize without frame key.
+         */
         constructor(public field_number: bigint, public item: TSerializerWillAccept) {} 
         
-        public* serialize_one_frame(): Generator<Uint8Array, void, undefined> {
-            const member = this
-            if(member.item instanceof Uint8Array) {
-                const payload = member.item
-                const payload_length = NumberCodec.positive_bigint_to_varint(BigInt(payload.length))
-                const frame_key = NumberCodec.positive_bigint_to_varint(member.field_number << 3n | wire_type.lendelim)
-                yield frame_key
-                yield payload_length
+        private get_frame_key_if_not_headless(wire_type: bigint): Uint8Array|null {
+            if(this.field_number !== null) {
+                const frame_key = NumberCodec.positive_bigint_to_varint(this.field_number << 3n | wire_type)
+                return frame_key
+            }
+            return null
+        }
+
+
+        public* to_chunks(): Generator<Uint8Array, void, undefined> {
+            if(this.item instanceof Uint8Array) {
+                const payload = this.item
+                const payload_length_specifier = NumberCodec.positive_bigint_to_varint(BigInt(payload.length))
+                const frame_key = this.get_frame_key_if_not_headless(wire_type.lendelim)
+                if (frame_key !== null) { yield frame_key }
+                yield payload_length_specifier
                 yield payload
             }
-            else if (typeof member.item === "bigint") {
-                const int_value = member.item
+            else if (typeof this.item === "bigint") {
+                const int_value = this.item
                 if(int_value < 0n) {
                     const payload = NumberCodec.positive_bigint_to_varint(-1n*int_value)
-                    const frame_key = NumberCodec.positive_bigint_to_varint(member.field_number << 3n | wire_type.negvar)
-                    yield frame_key
+                    const frame_key = this.get_frame_key_if_not_headless(wire_type.negvar)
+                    if (frame_key !== null) { yield frame_key }
                     yield payload
                 }
                 else {
                     const payload = NumberCodec.positive_bigint_to_varint(int_value)
-                    const frame_key = NumberCodec.positive_bigint_to_varint(member.field_number << 3n | wire_type.var)
-                    yield frame_key
+                    const frame_key = this.get_frame_key_if_not_headless(wire_type.var)
+                    if (frame_key !== null) { yield frame_key }
                     yield payload
                 }
             }
-            else if (member.item instanceof Fixed32) {
-                const payload = member.item.value
-                const frame_key = NumberCodec.positive_bigint_to_varint(member.field_number << 3n | wire_type.fix32)
-                yield frame_key
+            else if (this.item instanceof Fixed64) {
+                const payload = this.item.value
+                const frame_key = this.get_frame_key_if_not_headless(wire_type.fix64)
+                if (frame_key !== null) { yield frame_key }
                 yield payload
             }
-            else if (member.item instanceof Fixed64) {
-                const payload = member.item.value
-                const frame_key = NumberCodec.positive_bigint_to_varint(member.field_number << 3n | wire_type.fix64)
-                yield frame_key
-                yield payload
+            else if (this.item instanceof Array) {
+                const frame_key = this.get_frame_key_if_not_headless(wire_type.fix64)
+                if (frame_key === null) {  // headless => can emit chunks of children frames directly
+                    for (const frame of this.item) {
+                        for (const chunk of frame.to_chunks()) {
+                            yield chunk
+                        }
+                    }
+                }
+                else {  // not headless => must buffer all the chunks, get total length, then emit the whole thing (chunk by chunk to avoid copying)
+                    const chunks = []
+                    for (const frame of this.item) {
+                        for (const chunk of frame.to_chunks()) {
+                            chunks.push(chunk)
+                        }
+                    }
+                    const payload_length_specifier = NumberCodec.positive_bigint_to_varint(BigInt(Ui8aUtil.total_len(chunks)))
+                    yield frame_key
+                    yield payload_length_specifier
+                    for (const chunk of chunks) {
+                        yield chunk
+                    }
+                }
             }
             else {
-                check_never(member.item)
+                check_never(this.item)
             }
         }
     }
 
-
-
-    type FrameKeyParsed = {raw: bigint, field_id: bigint, wire_type: bigint }
+    type FrameKeyParsed = { field_id: bigint, wire_type: bigint }
     type ExpectNextChunkType 
         = "framekey vint next byte" 
         | "payload vint next byte" 
@@ -174,7 +209,7 @@ export namespace FrameCodec {
 
     /**
      * @yields The size (in bytes) of the next chunk of memory it needs to keep deserializing. If not enough bytes exist, then message error.
-     * @returns After one frame finishes serializing
+     * @returns Returns after one frame finishes serializing. Will return the one frame.
      * when iterating the iterator, be sure to pass in the exact amount of bytes requested by the previous yield. it will check
      */
     export function* deserialize_one_frame(): Generator<DeserializerInterimResult, Frame, Uint8Array> {
@@ -189,7 +224,7 @@ export namespace FrameCodec {
             if(incoming_data.length !== 1) { throw new Error("Deserializer request length must be respected") }
             const parser_outcome = varint_parser.next(incoming_data[0])
             if (parser_outcome.done) {
-                frame_key = { raw: parser_outcome.value, field_id: parser_outcome.value >> 3n, wire_type: parser_outcome.value & 0b111n }
+                frame_key = { field_id: parser_outcome.value >> 3n, wire_type: parser_outcome.value & 0b111n }
                 break
             }
         }
@@ -207,6 +242,8 @@ export namespace FrameCodec {
                 }
             }
         }
+
+        // 2/4 payload is negative varint
         else if (frame_key.wire_type === wire_type.negvar) {
             const payload_varint_parser = NumberCodec.get_varint_parser()
             while(true) {
@@ -219,7 +256,7 @@ export namespace FrameCodec {
             }
         }
 
-        // 2/4 - payload is length-delimited byte array
+        // 3/4 - payload is length-delimited byte array
         else if (frame_key.wire_type === wire_type.lendelim) {
             const payload_length_specifier_parser = NumberCodec.get_varint_parser()
             let payload_length: number
@@ -237,13 +274,6 @@ export namespace FrameCodec {
             return new Frame(frame_key.field_id, payload)
         }
 
-        // 3/4 - payload is a 4-byte segment
-        else if (frame_key.wire_type === wire_type.fix32) {
-            const payload = yield build_interim_result(4, frame_key, "fix32 payload entire", nth_iteration++)
-            if(payload.length !== 4) { throw new Error("Deserializer request length must be respected") }
-            return new Frame(frame_key.field_id, new Fixed32(payload))
-        }
-
         // 4/4 - payload is an 8-byte segment
         else if (frame_key.wire_type === wire_type.fix64) {
             const payload = yield build_interim_result(8, frame_key, "fix64 payload entire", nth_iteration++)
@@ -257,7 +287,7 @@ export namespace FrameCodec {
     }
 }
 
-export namespace Util {
+export namespace FrameUtil {
 
     interface MultiFrameDeserializerInterimResultExtension extends FrameCodec.DeserializerInterimResult {
         one_frame_just_finished: FrameCodec.Frame | null
@@ -284,27 +314,28 @@ export namespace Util {
         }
     }
 
-    export function deserialize_from_ui8a(buffer: Uint8Array): FrameCodec.Frame[] {
+    export function* deserialize_from_ui8a(buffer: Uint8Array): Generator<FrameCodec.Frame, "Well-packed"|"Incomplete", void> {
         let current_position = 0
-        const processed_frames: FrameCodec.Frame[] = []
         const parser = deserialize_multi_frame()
         let interim_result = parser.next()
         while (true) {
             // console.log(interim_result)
             const requested_bytes_length = interim_result.value.request_next_chunk_length
-            if (current_position + requested_bytes_length > buffer.length) { 
-                break 
+            if (current_position + requested_bytes_length > buffer.length) {  // multi-frame deserializer is requesting bytes beyond the buffer
+                // if this happens because it's expeting a new frame, that means everything is okay, the ui8a packs an integer amount of frames
+                if (interim_result.value.nth_iteration === 0) { return "Well-packed" }
+                // otherwise it signifies that the last frame in the ui8a is either incomplete or malformed, and is directing deserializer to access bytes beyond the buffer.
+                return "Incomplete" 
             }
             const conforming_input = new Uint8Array(requested_bytes_length)
             for(let i=0; i<requested_bytes_length; i++) { conforming_input[i] = buffer[current_position+i] }
             current_position += requested_bytes_length
             const result = parser.next(conforming_input)
             if(result.value.one_frame_just_finished) { 
-                processed_frames.push(result.value.one_frame_just_finished) 
+                yield (result.value.one_frame_just_finished) 
             }
             interim_result = result
         }
-        return processed_frames
     } 
 }
 
@@ -312,55 +343,82 @@ export namespace Util {
 
 export namespace Interface {
 
-    class SubMessage<T> { constructor(public readonly field_number: bigint, public readonly fields: T) {} }
-    export function submessage<T> (field_number: bigint, fields: T) { return new SubMessage(field_number, fields) }
-    class Repeated<T> { constructor(public readonly repeated_field: T[]) {} }
-    export function repeated<T extends Field<TInterfaceWillAccept> | SubMessage<unknown>>(repeated_field: T): Repeated<T> {
-        if(repeated_field instanceof SubMessage) { return new Repeated([]) }
-        else { return new Repeated([]) }
-    }
-
-    export type TInterfaceWillAccept = bigint | boolean | number | string | Uint8Array | FrameCodec.Fixed64 | FrameCodec.Fixed32
-    export type TIWATypeSpecifier = "str" | "num" | "big" | "boo" | "u8a" | "f32" | "f64"
+    export type TInterfaceWillAccept = bigint | boolean | number | string | Uint8Array | FrameCodec.Fixed64
+    export type TIWATypeSpecifier = "str" | "num" | "big" | "boo" | "u8a" | "f64"
 
     const default_bigint = 0n
     const default_boolean = false
     const default_number = 0
     const default_string = ""
     const default_ui8a = new Uint8Array(0)
-    const default_fixed32 = new FrameCodec.Fixed32(new Uint8Array([0,0,0,0]))
     const default_fixed64 = new FrameCodec.Fixed64(new Uint8Array([0,0,0,0,0,0,0,0]))
+
+    function* any_to_frames(any: any, should_throw?: boolean): Generator<FrameCodec.Frame, void, void> {
+        if(any instanceof Field) { 
+            const frame = any.to_frame() 
+            if(frame !== "OMIT") { yield frame }
+            return
+        }
+        if(any instanceof SubMessage) {
+            for (const frame of any.to_frames()) { yield frame }
+            return
+        }
+        if(any instanceof RepeatFields) {
+            for (const frame of any.to_frames()) { yield frame }
+            return
+        }
+        if(any instanceof RepeatSubMessages) {
+            for (const frame of any.to_frames()) { yield frame }
+            return
+        }
+        if (should_throw) { throw new Error("Data object contains unserializable fields") }
+    }
+
+    class SubMessage<T> { 
+        constructor(public readonly field_number: bigint, public readonly object: T) {} 
+        public* to_frames(): Generator<FrameCodec.Frame, void, void> {
+            for(const [_k, v] of Object.entries(this.object)) {
+                for(const frame of any_to_frames(v, true)) { yield frame }
+            }
+        }
+    }
+
+    class RepeatFields<T extends TInterfaceWillAccept> {
+        constructor(public readonly field_number: bigint, public readonly fields: T[]) {}
+        public* to_frames(): Generator<FrameCodec.Frame, void, void> {
+            for (const entry of this.fields) {
+                const field = new Field(this.field_number, entry)
+                const frame = field.to_frame()
+                if (frame !== "OMIT") { yield frame }
+            }
+        }
+    }
+
+    class RepeatSubMessages<T> {
+        constructor(public readonly field_number: bigint, public readonly object: T[]) {}
+        public* to_frames(): Generator<FrameCodec.Frame, void, void> {
+
+        }
+    }
 
     /**
      * Field<T extends TSerializerWillAccept>
      * T = what it should be interpreted as
      */
     class Field<T extends TInterfaceWillAccept> { 
-        constructor(public readonly field_number: bigint, private item: T) {} 
+        constructor(public readonly field_number: bigint, public item: T) {}
         public to_frame(): FrameCodec.Frame|"OMIT" {
             const item = this.item as TInterfaceWillAccept
-            if(typeof item === "string"  ) { if(item === default_string)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, new TextEncoder().encode(item)) }
-            if(typeof item === "number"  ) { if(item === default_number)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, new FrameCodec.Fixed64(NumberCodec.jsfloat64_to_ui8a(item))) }
-            if(typeof item === "bigint"  ) { if(item === default_bigint)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, item) }
-            if(typeof item === "boolean" ) { if(item === default_boolean) { return "OMIT" } return new FrameCodec.Frame(this.field_number, item?1n:0n) }
-            if(item instanceof Uint8Array) { return new FrameCodec.Frame(this.field_number, item) }
-            if(item instanceof FrameCodec.Fixed32) { return new FrameCodec.Frame(this.field_number, item) }
-            if(item instanceof FrameCodec.Fixed64) { return new FrameCodec.Frame(this.field_number, item) }
+            if (typeof item === "string"  ) { if(item === default_string)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, new TextEncoder().encode(item)) }
+            if (typeof item === "number"  ) { if(item === default_number)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, new FrameCodec.Fixed64(NumberCodec.jsfloat64_to_ui8a(item))) }
+            if (typeof item === "bigint"  ) { if(item === default_bigint)  { return "OMIT" } return new FrameCodec.Frame(this.field_number, item) }
+            if (typeof item === "boolean" ) { if(item === default_boolean) { return "OMIT" } return new FrameCodec.Frame(this.field_number, item?1n:0n) }
+            if (item instanceof Uint8Array) { return new FrameCodec.Frame(this.field_number, item) }
+            if (item instanceof FrameCodec.Fixed64) { return new FrameCodec.Frame(this.field_number, item) }
             check_never(item)
         }
         public set(new_item: T) {
             this.item = new_item
-        }
-        public type(): TIWATypeSpecifier {
-            const item = this.item as TInterfaceWillAccept
-            if(typeof item === "string"  )         { return "str" }
-            if(typeof item === "number"  )         { return "num" }
-            if(typeof item === "bigint"  )         { return "big" }
-            if(typeof item === "boolean" )         { return "boo" }
-            if(item instanceof Uint8Array)         { return "u8a" }
-            if(item instanceof FrameCodec.Fixed32) { return "f32" } 
-            if(item instanceof FrameCodec.Fixed64) { return "f64" } 
-            check_never(item)
         }
     }
 
@@ -373,18 +431,16 @@ export namespace Interface {
             else if (type === "big")  { return default_bigint  }                            
             else if (type === "boo")  { return default_boolean }                     
             else if (type === "u8a")  { return default_ui8a    }                            
-            else if (type === "f64")  { return default_fixed32 }                            
-            else if (type === "f32")  { return default_fixed64 }                            
+            else if (type === "f64")  { return default_fixed64 }
             check_never(type)
         }
         else {
-                 if (type === "str") { if(wf.item instanceof Uint8Array) { return new TextDecoder().decode(wf.item) }    else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "num") { if(wf.item instanceof Fixed64)    { return new Float64Array(wf.item.value)[0] }   else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "big") { if(typeof wf.item === "bigint")   { return wf.item }                              else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "boo") { if(typeof wf.item === "bigint")   { return wf.item !== 0n }                       else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "u8a") { if(wf.item instanceof Uint8Array) { return wf.item }                              else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "f64") { if(wf.item instanceof Fixed64)    { return wf.item }                              else { throw new WireTypeInterfaceTypeMismatchError() } }
-            else if (type === "f32") { if(wf.item instanceof Fixed32)    { return wf.item }                              else { throw new WireTypeInterfaceTypeMismatchError() } }
+                 if (type === "str") { if(wf.item instanceof Uint8Array) { return new TextDecoder().decode(wf.item) }  else { throw new WireTypeInterfaceTypeMismatchError() } }
+            else if (type === "num") { if(wf.item instanceof Fixed64)    { return new Float64Array(wf.item.value)[0] } else { throw new WireTypeInterfaceTypeMismatchError() } }
+            else if (type === "big") { if(typeof wf.item === "bigint")   { return wf.item }                            else { throw new WireTypeInterfaceTypeMismatchError() } }
+            else if (type === "boo") { if(typeof wf.item === "bigint")   { return wf.item !== 0n }                     else { throw new WireTypeInterfaceTypeMismatchError() } }
+            else if (type === "u8a") { if(wf.item instanceof Uint8Array) { return wf.item }                            else { throw new WireTypeInterfaceTypeMismatchError() } }
+            else if (type === "f64") { if(wf.item instanceof Fixed64)    { return wf.item }                            else { throw new WireTypeInterfaceTypeMismatchError() } }
             check_never(type)
         }
 
@@ -392,46 +448,23 @@ export namespace Interface {
 
     export function* serialize_object(obj: any): Generator<Uint8Array, void, void> {
         for (const [_k, v] of Object.entries(obj)) {
-            if (v instanceof Field) {
-                const wire_frame = v.to_frame()
-                if (wire_frame === "OMIT") { continue }
-                const serializer = wire_frame.serialize_one_frame()
-                for (const chunk of serializer) {
+            for (const frame of any_to_frames(v, true)) {
+                for (const chunk of frame.to_chunks()) {
                     yield chunk
                 }
-            }
-            else if (v instanceof SubMessage) { 
-                const inner_serializer = serialize_object(v.fields)
-                const inner_chunks: Uint8Array[] = []
-                for (const chunk of inner_serializer) {
-                    inner_chunks.push(chunk)
-                }
-                const wire_frame = new Field(v.field_number, ui8a_concat(inner_chunks)).to_frame()
-                if (wire_frame === "OMIT") { continue }
-                const serializer = wire_frame.serialize_one_frame()
-                for (const chunk of serializer) {
-                    yield chunk
-                }
-            }
-            else if(v instanceof Repeated) {
-                const wire_frame = v.repeated_field.map()
             }
         }
     }
 
     export function serialize_to_ui8a(obj: any): Uint8Array {
-        const serializer = serialize_object(obj)
-        const chunks: Uint8Array[] = []
-        for(const chunk of serializer) {
-            chunks.push(chunk)
-        }
-        return ui8a_concat(chunks)
+        return Ui8aUtil.concat(Ui8aUtil.collect(serialize_object(obj)))
     }
 
     type GetTheField<T> = 
         T extends Field<infer X> ? X :
         T extends SubMessage<infer Y> ? GetTheRecords<Y> : 
-        T extends Repeated<infer Z> ? GetTheField<Z>[] : never 
+        T extends RepeatFields<infer Z> ? Z[] : 
+        T extends RepeatSubMessages<infer W> ? GetTheRecords<W>[] : never 
 
     type GetTheRecords<T> = { 
         [K in keyof T]: GetTheField<T[K]>
@@ -441,12 +474,12 @@ export namespace Interface {
         class Def {
             field = field(1n, "bigint")
             empty_submsg = submessage(2n, {})
-            repeat_f = repeated(field(3n, "string"))
-            repeat_s = repeated(submessage(4n, {
+            repeat_f = repeat_fields(3n, "string")
+            repeat_s = repeat_submessage(4n, {
                 subf = field(1n, "number")
             }))
             rep_s_rep_f = repeated(submessage(5n, {
-                field: repeated(field(1n, "boolean"))
+                field: repeat_fields(1n, "boolean")
             }))
         }
 
@@ -480,7 +513,7 @@ export namespace Interface {
                 if (wire_value) {
                     frames.delete(field.field_number)
                     if(wire_value.item instanceof Uint8Array) {
-                        Object.assign(product, repackage(Util.deserialize_from_ui8a(wire_value.item), field.fields))
+                        Object.assign(product, repackage(FrameUtil.deserialize_from_ui8a(wire_value.item), field.fields))
                     }
                     else { throw new WireTypeInterfaceTypeMismatchError() }
                 }
@@ -502,92 +535,85 @@ export namespace Interface {
     export function field(field_number: bigint, type: "number"):  Field<number>     
     export function field(field_number: bigint, type: "string"):  Field<string>     
     export function field(field_number: bigint, type: "ui8a"):    Field<Uint8Array> 
-    export function field(field_number: bigint, type: "fixed32"): Field<FrameCodec.Fixed32> 
     export function field(field_number: bigint, type: "fixed64"): Field<FrameCodec.Fixed64> 
-    export function field(field_number: bigint, type: "bigint"|"boolean"|"number"|"string"|"ui8a"|"fixed32"|"fixed64"): Field<TInterfaceWillAccept> {
+    export function field(field_number: bigint, type: "bigint"|"boolean"|"number"|"string"|"ui8a"|"fixed64"): Field<TInterfaceWillAccept> {
         if(type === "bigint")       { return new Field(field_number, default_bigint) }
         else if(type === "boolean") { return new Field(field_number, default_boolean)}
         else if(type === "number")  { return new Field(field_number, default_number) }
         else if(type === "string")  { return new Field(field_number, default_string) }
         else if(type === "ui8a")    { return new Field(field_number, default_ui8a)   }
-        else if(type === "fixed32") { return new Field(field_number, default_fixed32)}
         else if(type === "fixed64") { return new Field(field_number, default_fixed64)}
         check_never(type)
     }
+
+    export function repeat_fields(field_number: bigint, type: "bigint"):  RepeatFields<bigint>     
+    export function repeat_fields(field_number: bigint, type: "boolean"): RepeatFields<boolean>    
+    export function repeat_fields(field_number: bigint, type: "number"):  RepeatFields<number>     
+    export function repeat_fields(field_number: bigint, type: "string"):  RepeatFields<string>     
+    export function repeat_fields(field_number: bigint, type: "ui8a"):    RepeatFields<Uint8Array> 
+    export function repeat_fields(field_number: bigint, type: "fixed64"): RepeatFields<FrameCodec.Fixed64> 
+    export function repeat_fields(field_number: bigint, type: "bigint"|"boolean"|"number"|"string"|"ui8a"|"fixed64"): RepeatFields<TInterfaceWillAccept> {
+        return new RepeatFields(field_number, [])
+    }
+
+    export function repeat_submessages<T>(field_number: bigint, _example: T) { return new RepeatSubMessages<T>(field_number, []) }
+    export function submessage<T>(field_number: bigint, example: T) { return new SubMessage(field_number, example) }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// export const ui8a_concat = Util.ui8a_concat
-// export const serialize_one_frame = FrameCodec.serialize_one_frame
 export const serialize_object = Interface.serialize_object
 export const serialize_to_ui8a = Interface.serialize_to_ui8a
 export const deserialize_one_frame = FrameCodec.deserialize_one_frame
-export const deserialize_multi_frame = Util.deserialize_multi_frame
-export const deserialize_from_ui8a = Util.deserialize_from_ui8a
-export const Fixed32 = FrameCodec.Fixed32
-export type  Fixed32 = FrameCodec.Fixed32
+export const deserialize_multi_frame = FrameUtil.deserialize_multi_frame
+export const deserialize_from_ui8a = FrameUtil.deserialize_from_ui8a
 export const Fixed64 = FrameCodec.Fixed64
 export type  Fixed64 = FrameCodec.Fixed64
 export type  TSerializerWillAccept = FrameCodec.TSerializerWillAccept
 export type  TInterfaceWillAccept = Interface.TInterfaceWillAccept
 export const field = Interface.field 
-export const repeated = Interface.repeated
 export const submessage = Interface.submessage 
 
-const f = field(4n, "string")
 
-namespace Prototyping {
+// namespace Prototyping {
 
-    class Base {
-        to_buffer() {
-            return serialize_to_ui8a(this)
-        }
-        from_buffer(buf: Uint8Array) {
-            //return Util.repackage(deserialize_from_ui8a(buf), this).result
-        }
-    }
-    class PbCreds extends Base {
-        sid     = field(1n, "string")
-        ssec    = field(2n, "bigint")
-        expiry  = field(3n, "number")
-    }
+//     class Base {
+//         to_buffer() {
+//             return serialize_to_ui8a(this)
+//         }
+//         from_buffer(buf: Uint8Array) {
+//             //return Util.repackage(deserialize_from_ui8a(buf), this).result
+//         }
+//     }
+//     class PbCreds extends Base {
+//         sid     = field(1n, "string")
+//         ssec    = field(2n, "bigint")
+//         expiry  = field(3n, "number")
+//     }
 
-    class PbRequestPage extends Base {
-        apparent_name = field(1n, "ui8a")
-        creds         = repeated(submessage(2n, new PbCreds()))
-    }
+//     class PbRequestPage extends Base {
+//         apparent_name = field(1n, "ui8a")
+//         creds         = repeated(submessage(2n, new PbCreds()))
+//     }
 
-    const obj = new PbCreds()
-    obj.sid.set("535")
+//     const obj = new PbCreds()
+//     obj.sid.set("535")
 
-    // // declare function serialize_data<T>(data: T): Uint8Array
-    // type GetTheRecords<T> = { [K in keyof T]: T[K] extends FrameCodec.Field<infer X> ? X : T[K] extends FrameCodec.SubMessage<infer Y> ? GetTheRecords<Y> : never }
-    // declare function deserialize_data<T>(data: Uint8Array, model: T): GetTheRecords<T>
+//     // declare function serialize_data<T>(data: T): Uint8Array
+//     type GetTheRecords<T> = { [K in keyof T]: T[K] extends FrameCodec.Field<infer X> ? X : T[K] extends FrameCodec.SubMessage<infer Y> ? GetTheRecords<Y> : never }
+//     declare function deserialize_data<T>(data: Uint8Array, model: T): GetTheRecords<T>
 
-    // const deserd = deserialize_data(new Uint8Array(10), new PbRequestPage())
-    // const deserd = new PbRequestPage().from_buffer(new Uint8Array(10))
-    // deserd.apparent_name
-    // deserd.creds.expiry
-    // deserd.creds.sid
-    // deserd.creds.ssec
-}
-
+//     const deserd = deserialize_data(new Uint8Array(10), new PbRequestPage())
+//     const deserd = new PbRequestPage().from_buffer(new Uint8Array(10))
+//     deserd.apparent_name
+//     deserd.creds.expiry
+//     deserd.creds.sid
+//     deserd.creds.ssec
+// }
 
 
-class DefinitionClass {
 
-    field1 = field(1n, "string")
-}
+// class DefinitionClass {
 
-const data_obj = new DefinitionClass()
+//     field1 = field(1n, "string")
+// }
+
+// const data_obj = new DefinitionClass()
